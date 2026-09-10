@@ -94,6 +94,10 @@ class Posting:
     score: float
     tags: List[str]
     raw: dict
+    # Recruiting cycle parsed from the title (e.g. "Summer 2027"), when present.
+    # Added in Phase 4 so cycles that have already closed can be filtered out;
+    # defaults to None so adapters (which don't classify) don't need updating.
+    cohort: str | None = None
 
 
 # A trailing requisition ID. Four ways a code can be recognizable as an ID

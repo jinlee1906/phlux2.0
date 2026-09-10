@@ -26,6 +26,42 @@ def load_config(path: Path | str = DEFAULT_CONFIG_PATH) -> Dict[str, Any]:
         return json.load(f)
 
 
+# Levels included by default when config.json has no "targets.levels" —
+# internships/co-ops only. Widen this list (add "NEW_GRAD") by editing
+# config.json; nothing else needs to change.
+DEFAULT_TARGET_LEVELS = ["INTERNSHIP", "CO_OP"]
+
+
+def load_target_levels(path: Path | str = DEFAULT_CONFIG_PATH) -> list[str]:
+    """Return the ``Level`` names to keep, from ``config.json``'s ``targets.levels``."""
+    return load_config(path).get("targets", {}).get("levels", DEFAULT_TARGET_LEVELS)
+
+
+def load_target_regions(path: Path | str = DEFAULT_CONFIG_PATH) -> list[str]:
+    """Return target regions for the scoring +2 location bonus (Phase 4d).
+
+    Empty by default — the location bonus is a no-op until regions are set.
+    """
+    return load_config(path).get("targets", {}).get("regions", [])
+
+
+# Defaults for the Phase 4a scoring formula. half_life_days controls the
+# recency decay; weights are the per-category multipliers in the S formula.
+DEFAULT_SCORING_CONFIG: Dict[str, Any] = {
+    "half_life_days": 14,
+    "min_score": 0.0,
+    "weights": {"core": 3, "sector": 1, "veto": -5, "location": 2},
+}
+
+
+def load_scoring_config(path: Path | str = DEFAULT_CONFIG_PATH) -> Dict[str, Any]:
+    """Return scoring parameters from ``config.json``'s ``scoring`` section, defaulted."""
+    scoring = load_config(path).get("scoring", {})
+    merged = {**DEFAULT_SCORING_CONFIG, **scoring}
+    merged["weights"] = {**DEFAULT_SCORING_CONFIG["weights"], **scoring.get("weights", {})}
+    return merged
+
+
 def load_email_config(path: Path | str = DEFAULT_CONFIG_PATH) -> Dict[str, Any]:
     """Return email settings from the ``EMAIL`` section, filled with defaults.
 

@@ -4,5 +4,19 @@
     "internship_bcc": [],
     "fulltime_enabled": false,
     "fulltime_bcc": []
+  },
+  "targets": {
+    "levels": ["INTERNSHIP", "CO_OP"],
+    "regions": []
+  },
+  "scoring": {
+    "half_life_days": 14,
+    "min_score": 0.0,
+    "weights": {
+      "core": 3,
+      "sector": 1,
+      "veto": -5,
+      "location": 2
+    }
   }
 }
