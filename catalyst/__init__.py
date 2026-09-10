@@ -1,4 +1,4 @@
-"""Core package for phlux scraping utilities."""
+"""Core package for catalyst scraping utilities."""
 
 from .config import load_config
 from .models import Company, ScrapeResult

@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from phlux.utils import get_driver
+from catalyst.utils import get_driver
 
 YC_URL = "https://www.ycombinator.com/jobs/role/software-engineer"
 

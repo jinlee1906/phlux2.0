@@ -7,8 +7,8 @@ import time
 
 from selenium.webdriver.common.by import By
 
-from phlux.scraping import get_jobs_headless
-from phlux.utils import get_driver
+from catalyst.scraping import get_jobs_headless
+from catalyst.utils import get_driver
 
 logging.getLogger().setLevel(logging.ERROR)
 

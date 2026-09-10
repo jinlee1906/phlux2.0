@@ -1,4 +1,4 @@
-"""Configuration loader for phlux."""
+"""Configuration loader for catalyst."""
 from __future__ import annotations
 
 import json

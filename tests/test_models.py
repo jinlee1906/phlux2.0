@@ -1,5 +1,5 @@
-from phlux.models import Company
-from phlux.scraping import load_company_data
+from catalyst.models import Company
+from catalyst.scraping import load_company_data
 
 
 def test_load_company_data():

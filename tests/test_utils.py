@@ -1,5 +1,5 @@
-"""Tests for phlux/utils.py."""
-from phlux.utils import is_full_time, is_internship
+"""Tests for catalyst/utils.py."""
+from catalyst.utils import is_full_time, is_internship
 
 
 # ── is_internship / is_full_time ──────────────────────────────────────────────

@@ -1,9 +1,9 @@
-"""Tests for phlux/config.py."""
+"""Tests for catalyst/config.py."""
 import json
 
 import pytest
 
-from phlux.config import load_config
+from catalyst.config import load_config
 
 
 def test_load_config_returns_dict(tmp_path):

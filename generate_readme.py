@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from phlux.scraping import load_company_data
+from catalyst.scraping import load_company_data
 
 
 def load_company_links(csv_path: str = "companies.csv") -> Dict[str, str]:
@@ -35,9 +35,9 @@ def generate_readme(jobs: Dict[str, List[Any]], links: Dict[str, str]) -> str:
     """
     total_jobs = sum(len(v) for v in jobs.values() if v)
     lines = [
-        "# 🌀 Phlux: Phi's Job Tracker\n",
+        "# 🌀 Catalyst: Chemical Engineering Job Tracker\n",
         "Easily track jobs across top tech companies.\n",
-        f"\n---\n\n## 🔍 2025 Phlux Job Listings\n"
+        f"\n---\n\n## 🔍 2025 Catalyst Job Listings\n"
         f"*Found {total_jobs} roles across {len(jobs)} companies*\n",
         """
 <table>

@@ -9,9 +9,9 @@ from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
-from phlux.config import load_config, load_email_config
-from phlux.scraping import ScrapeManager, load_company_data
-from phlux.utils import is_full_time, is_internship
+from catalyst.config import load_config, load_email_config
+from catalyst.scraping import ScrapeManager, load_company_data
+from catalyst.utils import is_full_time, is_internship
 
 logger = logging.getLogger(__name__)
 
@@ -48,20 +48,20 @@ def _format_email_html(message: Dict[str, Any], filter_fn: Callable[[str], bool]
 
     lines.append(
         '<p style="font-family: monospace;">💻 View all companies at '
-        '<a href="https://github.com/Ph1so/phlux2.0" target="_blank">'
-        "github.com/Ph1so/phlux2.0</a></p>"
+        '<a href="https://github.com/jinlee1906/phlux2.0" target="_blank">'
+        "github.com/jinlee1906/phlux2.0</a></p>"
     )
     return "\n".join(lines)
 
 
 def format_message_html(message: Dict[str, Any]) -> str:
     """Return the HTML body for the internship-alert email."""
-    return _format_email_html(message, is_internship, "Internships from Phi")
+    return _format_email_html(message, is_internship, "Internships from Catalyst")
 
 
 def format_message_html_fulltime(message: Dict[str, Any]) -> str:
     """Return the HTML body for the full-time-role alert email."""
-    return _format_email_html(message, is_full_time, "Full-Time Roles from Phi")
+    return _format_email_html(message, is_full_time, "Full-Time Roles from Catalyst")
 
 
 def _send_email_impl(

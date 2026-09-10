@@ -1,11 +1,11 @@
-"""Tests for phlux/scraping.py."""
+"""Tests for catalyst/scraping.py."""
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from phlux.models import Company, ScrapeResult
-from phlux.scraping import Actions, load_company_data, process_jobs
+from catalyst.models import Company, ScrapeResult
+from catalyst.scraping import Actions, load_company_data, process_jobs
 
 
 # ── Actions ───────────────────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ class TestProcessJobs:
         fixed_dt.day = 31
 
         data = {"companies": {}}
-        with patch("phlux.scraping.datetime") as mock_dt:
+        with patch("catalyst.scraping.datetime") as mock_dt:
             mock_dt.now.return_value = fixed_dt
             self._run(data, ["Engineer"])
 
