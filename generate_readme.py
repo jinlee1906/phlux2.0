@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from phlux.scraping import load_company_data
-from phlux.utils import update_icons
 
 
 def load_company_links(csv_path: str = "companies.csv") -> Dict[str, str]:
@@ -34,13 +33,6 @@ def generate_readme(jobs: Dict[str, List[Any]], links: Dict[str, str]) -> str:
     Returns:
         Complete README Markdown string.
     """
-    try:
-        from phlux.utils import _ICONS_PATH
-        with open(_ICONS_PATH, "r", encoding="utf-8") as f:
-            icons = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        icons = {}
-
     total_jobs = sum(len(v) for v in jobs.values() if v)
     lines = [
         "# 🌀 Phlux: Phi's Job Tracker\n",
@@ -65,16 +57,7 @@ def generate_readme(jobs: Dict[str, List[Any]], links: Dict[str, str]) -> str:
         if not postings:
             continue
 
-        icon_url = icons.get(company, "")
-        if not isinstance(icon_url, str):
-            icon_url = icon_url.get("readme", "")
-
-        company_display = (
-            f'<img src="{icon_url}" alt="{company}" height="20" '
-            f'style="vertical-align:middle; margin-right:6px;"> {company}'
-            if icon_url
-            else company
-        )
+        company_display = company
         company_link = links.get(company, "#")
         linked_company = f'<a href="{company_link}">{company_display}</a>'
 
@@ -120,7 +103,6 @@ def generate_readme(jobs: Dict[str, List[Any]], links: Dict[str, str]) -> str:
 if __name__ == "__main__":
     _links = load_company_links()
     _jobs = load_jobs()
-    update_icons(companies=load_company_data())
     readme = generate_readme(_jobs, _links)
     Path("README.md").write_text(readme, encoding="utf-8")
     print("README.md updated successfully.")

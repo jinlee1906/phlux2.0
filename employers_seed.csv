@@ -1,0 +1,141 @@
+Name,Sector,Likely_ATS_UNVERIFIED,Notes
+Dow,SPECIALTY_CHEM,WORKDAY,Large rotational development program; Midland MI and Freeport TX
+DuPont,SPECIALTY_CHEM,WORKDAY,Delaware Valley - relevant if you are near New Castle
+Chemours,SPECIALTY_CHEM,WORKDAY,Wilmington DE headquarters
+BASF,SPECIALTY_CHEM,SUCCESSFACTORS,Largest chemical company globally; US sites in NJ and TX
+Eastman Chemical,SPECIALTY_CHEM,WORKDAY,Kingsport TN
+Celanese,SPECIALTY_CHEM,WORKDAY,Irving TX
+Huntsman,SPECIALTY_CHEM,UNKNOWN,
+LyondellBasell,SPECIALTY_CHEM,UNKNOWN,Houston
+Westlake,SPECIALTY_CHEM,UNKNOWN,
+Olin,SPECIALTY_CHEM,UNKNOWN,Chlor-alkali
+Albemarle,SPECIALTY_CHEM,UNKNOWN,Lithium and bromine
+Ashland,SPECIALTY_CHEM,UNKNOWN,
+Lubrizol,SPECIALTY_CHEM,UNKNOWN,Berkshire subsidiary
+Cabot,MATERIALS,UNKNOWN,
+Ecolab,SPECIALTY_CHEM,UNKNOWN,
+PPG,MATERIALS,UNKNOWN,Coatings
+Sherwin-Williams,MATERIALS,UNKNOWN,Coatings
+Air Products,SPECIALTY_CHEM,WORKDAY,Allentown PA; industrial gases and hydrogen
+Linde,SPECIALTY_CHEM,SUCCESSFACTORS,Industrial gases
+Honeywell,SPECIALTY_CHEM,SUCCESSFACTORS,UOP division is the process-licensing arm
+Corteva,SPECIALTY_CHEM,WORKDAY,Agriscience; DuPont spinoff
+3M,MATERIALS,WORKDAY,
+ExxonMobil,OIL_GAS,PHENOM,Strong new-grad pipeline; Baytown and Baton Rouge
+Chevron,OIL_GAS,WORKDAY,
+Phillips 66,OIL_GAS,UNKNOWN,
+Marathon Petroleum,OIL_GAS,UNKNOWN,
+Valero,OIL_GAS,ICIMS,
+Shell,OIL_GAS,UNKNOWN,
+bp,OIL_GAS,UNKNOWN,
+ConocoPhillips,OIL_GAS,UNKNOWN,
+Koch Industries,OIL_GAS,UNKNOWN,Includes Flint Hills Resources
+Merck,PHARMA_BIOTECH,UNKNOWN,Process development and drug substance roles
+Pfizer,PHARMA_BIOTECH,WORKDAY,
+Johnson & Johnson,PHARMA_BIOTECH,WORKDAY,
+AbbVie,PHARMA_BIOTECH,UNKNOWN,
+Amgen,PHARMA_BIOTECH,WORKDAY,Strong bioprocess engineering track
+Genentech,PHARMA_BIOTECH,UNKNOWN,Roche subsidiary
+Moderna,PHARMA_BIOTECH,GREENHOUSE,
+Eli Lilly,PHARMA_BIOTECH,WORKDAY,
+Bristol Myers Squibb,PHARMA_BIOTECH,UNKNOWN,
+Incyte,PHARMA_BIOTECH,UNKNOWN,Wilmington DE
+Intel,SEMICONDUCTOR,WORKDAY,Process and yield engineering; ChemE is a core feeder major
+Micron,SEMICONDUCTOR,WORKDAY,
+TSMC Arizona,SEMICONDUCTOR,UNKNOWN,
+Applied Materials,SEMICONDUCTOR,WORKDAY,
+Lam Research,SEMICONDUCTOR,WORKDAY,
+Texas Instruments,SEMICONDUCTOR,UNKNOWN,
+GlobalFoundries,SEMICONDUCTOR,UNKNOWN,
+Tesla,ENERGY_STORAGE,GREENHOUSE,Cell manufacturing and materials
+Form Energy,ENERGY_STORAGE,GREENHOUSE,Iron-air batteries; Weirton WV
+Redwood Materials,ENERGY_STORAGE,LEVER,Battery recycling; hydrometallurgy
+Sila Nanotechnologies,ENERGY_STORAGE,GREENHOUSE,
+QuantumScape,ENERGY_STORAGE,GREENHOUSE,
+Plug Power,ENERGY_STORAGE,UNKNOWN,Hydrogen and electrolyzers
+Procter & Gamble,FOOD_CPG,UNKNOWN,Well-known ChemE rotational program
+Unilever,FOOD_CPG,WORKDAY,
+Colgate-Palmolive,FOOD_CPG,UNKNOWN,
+Kimberly-Clark,FOOD_CPG,UNKNOWN,
+PepsiCo,FOOD_CPG,WORKDAY,
+Kraft Heinz,FOOD_CPG,UNKNOWN,
+General Mills,FOOD_CPG,UNKNOWN,
+Cargill,FOOD_CPG,WORKDAY,
+ADM,FOOD_CPG,UNKNOWN,
+Fluor,EPC,UNKNOWN,Process design consultancy path
+Bechtel,EPC,UNKNOWN,
+Jacobs,EPC,UNKNOWN,
+KBR,EPC,UNKNOWN,
+Worley,EPC,UNKNOWN,
+Wood,EPC,UNKNOWN,
+Burns & McDonnell,EPC,UNKNOWN,
+NREL,NATIONAL_LAB,UNKNOWN,Federal lab; separate hiring portal
+Oak Ridge National Laboratory,NATIONAL_LAB,UNKNOWN,
+Pacific Northwest National Laboratory,NATIONAL_LAB,UNKNOWN,
+Sandia National Laboratories,NATIONAL_LAB,UNKNOWN,US citizenship generally required
+Idaho National Laboratory,NATIONAL_LAB,UNKNOWN,
+Veolia,ENVIRONMENTAL,UNKNOWN,Water and waste treatment
+Xylem,ENVIRONMENTAL,UNKNOWN,
+Clean Harbors,ENVIRONMENTAL,UNKNOWN,
+Eos Energy Enterprises,ENERGY_STORAGE,UNKNOWN,Zinc-halide batteries - closest commercial match to your Ni-Zn coin cell work
+Urban Electric Power,ENERGY_STORAGE,UNKNOWN,Zinc-manganese dioxide cells; Pearl River NY; small team
+Natron Energy,ENERGY_STORAGE,GREENHOUSE,Sodium-ion; aqueous chemistry adjacent to Ni-Zn
+ESS Inc,ENERGY_STORAGE,GREENHOUSE,Iron flow batteries
+Enovix,ENERGY_STORAGE,GREENHOUSE,Silicon anode cells
+Solid Power,ENERGY_STORAGE,GREENHOUSE,Solid-state
+24M Technologies,ENERGY_STORAGE,GREENHOUSE,Semi-solid electrode manufacturing; Cambridge MA
+Panasonic Energy,ENERGY_STORAGE,UNKNOWN,Cell manufacturing; De Soto KS and Reno NV
+LG Energy Solution,ENERGY_STORAGE,UNKNOWN,US cell plants in MI OH TN
+SK On,ENERGY_STORAGE,UNKNOWN,Commerce GA
+Apple,SEMICONDUCTOR,UNKNOWN,Battery and materials engineering; ChemEs hired into product process eng
+Samsung,SEMICONDUCTOR,UNKNOWN,Semiconductor and SDI battery divisions
+Meta Reality Labs,MATERIALS,UNKNOWN,Optics and materials process engineering
+Rivian,ENERGY_STORAGE,GREENHOUSE,Cell and pack engineering
+Lucid Motors,ENERGY_STORAGE,GREENHOUSE,Cell and pack engineering
+Givaudan,COSMETICS_FRAGRANCE,UNKNOWN,Largest fragrance house; US sites NJ and Cincinnati; hires ChemEs for aromachemical process work
+dsm-firmenich,COSMETICS_FRAGRANCE,UNKNOWN,DSM-Firmenich merger; fragrance and ingredients
+International Flavors & Fragrances,COSMETICS_FRAGRANCE,WORKDAY,IFF; NY; flavor and fragrance manufacturing
+Symrise,COSMETICS_FRAGRANCE,UNKNOWN,German F&F house with US operations
+Takasago,COSMETICS_FRAGRANCE,UNKNOWN,Japanese F&F house; Rockleigh NJ
+Mane,COSMETICS_FRAGRANCE,UNKNOWN,French F&F house
+Robertet,COSMETICS_FRAGRANCE,UNKNOWN,Naturals-focused F&F house
+Sensient Technologies,COSMETICS_FRAGRANCE,UNKNOWN,Flavors colors and fragrances
+L'Oreal,COSMETICS_FRAGRANCE,UNKNOWN,You did Brandstorm - use that as the hook; US plants in KY NJ AR
+Estee Lauder,COSMETICS_FRAGRANCE,UNKNOWN,Melville NY; owns multiple fragrance houses
+Coty,COSMETICS_FRAGRANCE,UNKNOWN,Fragrance-heavy portfolio
+Shiseido,COSMETICS_FRAGRANCE,UNKNOWN,US operations in East Windsor NJ
+Kao,COSMETICS_FRAGRANCE,UNKNOWN,
+Beiersdorf,COSMETICS_FRAGRANCE,UNKNOWN,Nivea and Eucerin
+e.l.f. Beauty,COSMETICS_FRAGRANCE,GREENHOUSE,
+Croda,COSMETICS_FRAGRANCE,UNKNOWN,Specialty ingredients for personal care; New Castle DE site
+Elementis,COSMETICS_FRAGRANCE,UNKNOWN,Personal care rheology additives
+Church & Dwight,COSMETICS_FRAGRANCE,UNKNOWN,
+Boston Dynamics,ROBOTICS,GREENHOUSE,Waltham MA; Hyundai owned
+Skild AI,ROBOTICS,GREENHOUSE,CMU spinout in Pittsburgh - closest thing to a home-field advantage
+Astrobotic,ROBOTICS,GREENHOUSE,Pittsburgh; CMU roots; lunar landers
+Near Earth Autonomy,ROBOTICS,UNKNOWN,Pittsburgh; CMU spinout
+Carnegie Robotics,ROBOTICS,UNKNOWN,Pittsburgh
+Aurora Innovation,ROBOTICS,GREENHOUSE,Pittsburgh; autonomous trucking
+Agility Robotics,ROBOTICS,GREENHOUSE,Humanoids; Corvallis OR and Pittsburgh
+Figure AI,ROBOTICS,GREENHOUSE,Humanoids
+Apptronik,ROBOTICS,GREENHOUSE,Humanoids; Austin TX
+1X Technologies,ROBOTICS,GREENHOUSE,Humanoids
+Sanctuary AI,ROBOTICS,LEVER,Humanoids; Vancouver
+Dexterity,ROBOTICS,GREENHOUSE,Warehouse manipulation
+Path Robotics,ROBOTICS,GREENHOUSE,Columbus OH; robotic welding
+Toyota Research Institute,ROBOTICS,UNKNOWN,Soft manipulation and materials research
+Soft Robotics Inc,ROBOTICS,UNKNOWN,Bedford MA; elastomeric grippers - verify still operating
+Anduril,ROBOTICS,LEVER,Defense autonomy; materials and manufacturing roles
+Shield AI,ROBOTICS,GREENHOUSE,
+Joby Aviation,AEROSPACE,GREENHOUSE,eVTOL; Santa Cruz and Marina CA; battery and composites work
+Archer Aviation,AEROSPACE,GREENHOUSE,eVTOL; San Jose CA
+Beta Technologies,AEROSPACE,GREENHOUSE,eVTOL; Burlington VT; strong battery group
+Boeing,AEROSPACE,WORKDAY,Materials and process engineering; chemical processing of aerostructures
+SpaceX,AEROSPACE,GREENHOUSE,Propulsion and materials; US citizens only which fits you
+Blue Origin,AEROSPACE,UNKNOWN,
+Rocket Lab,AEROSPACE,GREENHOUSE,
+Relativity Space,AEROSPACE,GREENHOUSE,
+Sierra Space,AEROSPACE,UNKNOWN,
+Lockheed Martin,AEROSPACE,UNKNOWN,Clearance-track roles; US citizenship required
+Northrop Grumman,AEROSPACE,WORKDAY,Solid propellant chemistry
+RTX,AEROSPACE,WORKDAY,Pratt & Whitney coatings and materials

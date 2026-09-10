@@ -1,11 +1,7 @@
 """Tests for main.py — email formatting and send functions."""
-import json
 import os
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
-
-import main
 from main import (
     format_message_html,
     format_message_html_fulltime,
@@ -49,10 +45,8 @@ class TestHasFullTimeRoles:
 # ── format_message_html (internships) ─────────────────────────────────────────
 
 class TestFormatMessageHtml:
-    def _call(self, message, icons=None):
-        icons_data = json.dumps(icons or {})
-        with patch("builtins.open", mock_open(read_data=icons_data)):
-            return format_message_html(message)
+    def _call(self, message):
+        return format_message_html(message)
 
     def test_contains_company_name(self, intern_message):
         html = self._call(intern_message)
@@ -71,26 +65,6 @@ class TestFormatMessageHtml:
         # No intern jobs → company section absent
         assert "Apply Here" not in html
 
-    def test_includes_img_tag_when_icon_exists(self, intern_message):
-        icons = {"Acme": "https://cdn.example.com/acme.png"}
-        html = self._call(intern_message, icons=icons)
-        assert "<img" in html
-        assert "https://cdn.example.com/acme.png" in html
-
-    def test_omits_img_tag_when_no_icon(self, intern_message):
-        html = self._call(intern_message, icons={})
-        assert "<img" not in html
-
-    def test_handles_dict_icon_format(self, intern_message):
-        icons = {"Acme": {"email": "https://cdn.example.com/acme.png"}}
-        html = self._call(intern_message, icons=icons)
-        assert "https://cdn.example.com/acme.png" in html
-
-    def test_handles_missing_icons_file(self, intern_message):
-        with patch("builtins.open", side_effect=FileNotFoundError):
-            html = format_message_html(intern_message)
-        assert "Acme" in html  # still renders, just no icons
-
     def test_returns_string(self, intern_message):
         html = self._call(intern_message)
         assert isinstance(html, str)
@@ -99,10 +73,8 @@ class TestFormatMessageHtml:
 # ── format_message_html_fulltime ──────────────────────────────────────────────
 
 class TestFormatMessageHtmlFulltime:
-    def _call(self, message, icons=None):
-        icons_data = json.dumps(icons or {})
-        with patch("builtins.open", mock_open(read_data=icons_data)):
-            return format_message_html_fulltime(message)
+    def _call(self, message):
+        return format_message_html_fulltime(message)
 
     def test_excludes_internship_title(self, intern_message):
         html = self._call(intern_message)
@@ -135,15 +107,13 @@ class TestSendEmail:
     def test_calls_smtp_login_with_password(self, intern_message):
         smtp_cls, smtp_instance = _make_smtp_mock()
         with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch("builtins.open", mock_open(read_data="{}")), \
              patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
             send_email(intern_message, test=True)
-        smtp_instance.login.assert_called_once_with("phiwe3296@gmail.com", "secret")
+        smtp_instance.login.assert_called_once_with("test@example.com", "secret")
 
     def test_calls_send_message(self, intern_message):
         smtp_cls, smtp_instance = _make_smtp_mock()
         with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch("builtins.open", mock_open(read_data="{}")), \
              patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
             send_email(intern_message, test=True)
         smtp_instance.send_message.assert_called_once()
@@ -154,7 +124,6 @@ class TestSendEmail:
         smtp_instance.send_message.side_effect = lambda msg: sent_msgs.append(msg)
 
         with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch("builtins.open", mock_open(read_data="{}")), \
              patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
             send_email(intern_message, test=True)
 
@@ -169,7 +138,6 @@ class TestSendEmailFulltime:
         smtp_instance.send_message.side_effect = lambda msg: sent_msgs.append(msg)
 
         with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch("builtins.open", mock_open(read_data="{}")), \
              patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
             send_email_fulltime(fulltime_message, test=True)
 
@@ -179,7 +147,6 @@ class TestSendEmailFulltime:
     def test_calls_smtp_login(self, fulltime_message):
         smtp_cls, smtp_instance = _make_smtp_mock()
         with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch("builtins.open", mock_open(read_data="{}")), \
              patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
             send_email_fulltime(fulltime_message, test=True)
         smtp_instance.login.assert_called_once()

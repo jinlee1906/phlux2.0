@@ -5,19 +5,13 @@ import json
 import logging
 import os
 import smtplib
-from datetime import datetime
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
-import gspread
-import pytz
-from gspread_formatting import CellFormat, format_cell_range
-from oauth2client.service_account import ServiceAccountCredentials
-
 from phlux.config import load_config, load_email_config
 from phlux.scraping import ScrapeManager, load_company_data
-from phlux.utils import is_full_time, is_internship, update_icons
+from phlux.utils import is_full_time, is_internship
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +19,6 @@ logger = logging.getLogger(__name__)
 
 def _format_email_html(message: Dict[str, Any], filter_fn: Callable[[str], bool], heading: str) -> str:
     """Build an HTML email body, keeping only jobs that satisfy *filter_fn*."""
-    try:
-        with open("icons.json", "r", encoding="utf-8") as f:
-            icons = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        icons = {}
-
     lines = [f'<h1 style="font-family: monospace;">{heading}</h1>']
     lines.append('<hr style="margin-top: 30px; margin-bottom: 20px;">')
 
@@ -43,21 +31,9 @@ def _format_email_html(message: Dict[str, Any], filter_fn: Callable[[str], bool]
         if not filtered:
             continue
 
-        icon_url = icons.get(company, "")
-        if not isinstance(icon_url, str):
-            icon_url = icon_url.get("email", "")
-
-        icon_html = (
-            f'<img src="{icon_url}" alt="{company} logo" height="24" '
-            f'style="vertical-align:middle; margin-right:6px;">'
-            if icon_url
-            else ""
-        )
-
         lines.append('<div style="margin-bottom: 30px;">')
         lines.append(
-            f'<h2 style="margin-bottom: 5px; font-family: monospace;">'
-            f'{icon_html} {company}</h2>'
+            f'<h2 style="margin-bottom: 5px; font-family: monospace;">{company}</h2>'
         )
         lines.append("<ul style='margin-top: 5px;'>")
         for title in filtered:
@@ -161,42 +137,6 @@ def has_full_time_roles(message: dict) -> bool:
     )
 
 
-# ── Google Sheets ─────────────────────────────────────────────────────────────
-
-def update_internship_tracker(jobs: List[str]) -> None:
-    """Append newly found Susquehanna internship titles to the tracking sheet.
-
-    Writes each job as a row of ``[company – title, date, "Applied"]`` and
-    right-aligns the date column.
-
-    Args:
-        jobs: List of job title strings to record.
-    """
-    raw = os.environ.get("GOOGLE_KEY_JSON")
-    if not raw:
-        logger.error("GOOGLE_KEY_JSON not set; skipping tracker update.")
-        return
-    creds_dict = json.loads(raw)
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive",
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    client = gspread.authorize(creds)
-
-    worksheet = client.open_by_key("1pZMYgV4GJZJIwyTSG4-ufWeUnJNE7ZQzcFk35qJj7QI").worksheet("Phi26")
-    start_row = len(worksheet.col_values(1)) + 1
-
-    eastern = pytz.timezone("US/Eastern")
-    now = datetime.now(eastern)
-    today = f"{now.month}/{now.day}/{now.year}"
-
-    rows = [["Susquehanna - " + job, today, "Applied"] for job in jobs]
-    end_row = start_row + len(rows) - 1
-    worksheet.update(values=rows, range_name=f"A{start_row}:C{end_row}")
-    format_cell_range(worksheet, f"B{start_row}:B{end_row}", CellFormat(horizontalAlignment="RIGHT"))
-
-
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -210,7 +150,6 @@ def main() -> None:
 
     new_jobs = result["new_jobs"]
     if new_jobs.get("companies"):
-        update_icons(companies=companies)
         if has_internships(new_jobs):
             send_email(new_jobs, test=False)
         else:

@@ -1,13 +1,5 @@
 """Tests for phlux/utils.py."""
-import json
-import os
-from unittest.mock import MagicMock, mock_open, patch
-
-import pytest
-import requests
-
-from phlux.models import Company
-from phlux.utils import is_full_time, is_internship, update_icons
+from phlux.utils import is_full_time, is_internship
 
 
 # ── is_internship / is_full_time ──────────────────────────────────────────────
@@ -59,78 +51,3 @@ class TestIsFullTime:
 
     def test_false_for_intern_role(self):
         assert is_full_time("Software Engineer Intern") is False
-
-
-# ── update_icons ──────────────────────────────────────────────────────────────
-
-_ICONS_ID_ENV = {"ICONS_ID": "test_key"}
-
-
-def _make_company(name="Acme"):
-    return Company(name, f"https://{name.lower()}.com", "CSS:.job")
-
-
-class TestUpdateIcons:
-    def test_skips_existing_companies(self):
-        icons_data = json.dumps({"Acme": "https://cdn.example.com/acme.png"})
-        with patch("builtins.open", mock_open(read_data=icons_data)), \
-             patch("phlux.utils.requests.get") as mock_get, \
-             patch.dict(os.environ, _ICONS_ID_ENV):
-            update_icons([_make_company("Acme")])
-        mock_get.assert_not_called()
-
-    def test_fetches_missing_company(self):
-        mock_response = MagicMock()
-        mock_response.json.return_value = [{"domain": "newco.com"}]
-        mock_response.raise_for_status = MagicMock()
-
-        captured = {}
-        def capture_dump(data, *args, **kwargs):
-            captured["data"] = data
-
-        with patch("builtins.open", mock_open(read_data="{}")), \
-             patch("phlux.utils.requests.get", return_value=mock_response), \
-             patch("phlux.utils.json.dump", side_effect=capture_dump), \
-             patch.dict(os.environ, _ICONS_ID_ENV):
-            update_icons([_make_company("NewCo")])
-
-        assert "NewCo" in captured["data"]
-        assert "newco.com" in captured["data"]["NewCo"]
-
-    def test_handles_request_exception_gracefully(self):
-        with patch("builtins.open", mock_open(read_data="{}")), \
-             patch("phlux.utils.requests.get", side_effect=requests.RequestException("timeout")), \
-             patch("phlux.utils.json.dump"), \
-             patch.dict(os.environ, _ICONS_ID_ENV):
-            update_icons([_make_company("BrokenCo")])  # must not raise
-
-    def test_handles_missing_icons_file(self):
-        mock_response = MagicMock()
-        mock_response.json.return_value = [{"domain": "newco.com"}]
-        mock_response.raise_for_status = MagicMock()
-
-        read_mock = mock_open()
-        read_mock.side_effect = [FileNotFoundError, MagicMock()]
-
-        captured = {}
-        def capture_dump(data, *args, **kwargs):
-            captured["data"] = data
-
-        with patch("builtins.open", read_mock), \
-             patch("phlux.utils.requests.get", return_value=mock_response), \
-             patch("phlux.utils.json.dump", side_effect=capture_dump), \
-             patch.dict(os.environ, _ICONS_ID_ENV):
-            update_icons([_make_company("NewCo")])
-
-        assert "NewCo" in captured.get("data", {})
-
-    def test_handles_empty_api_response(self):
-        mock_response = MagicMock()
-        mock_response.json.return_value = []  # IndexError on [0]
-        mock_response.raise_for_status = MagicMock()
-
-        with patch("builtins.open", mock_open(read_data="{}")), \
-             patch("phlux.utils.requests.get", return_value=mock_response), \
-             patch("phlux.utils.json.dump"), \
-             patch.dict(os.environ, _ICONS_ID_ENV):
-            update_icons([_make_company("EmptyCo")])  # must not raise

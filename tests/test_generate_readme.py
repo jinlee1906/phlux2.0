@@ -1,6 +1,5 @@
 """Tests for generate_readme.py."""
 import json
-from unittest.mock import mock_open, patch
 
 import pytest
 
@@ -29,12 +28,8 @@ class TestLoadJobs:
 
 # ── generate_readme ───────────────────────────────────────────────────────────
 
-def _call_generate(jobs, links, icons=None):
-    icons_data = json.dumps(icons or {})
-    with patch("generate_readme.update_icons"), \
-         patch("generate_readme.load_company_data", return_value=[]), \
-         patch("builtins.open", mock_open(read_data=icons_data)):
-        return generate_readme(jobs, links)
+def _call_generate(jobs, links):
+    return generate_readme(jobs, links)
 
 
 class TestGenerateReadme:
@@ -84,14 +79,6 @@ class TestGenerateReadme:
         links = {"Acme": "https://acme.com/careers"}
         readme = _call_generate(jobs, links)
         assert "https://acme.com/careers" in readme
-
-    def test_includes_icon_img_when_provided(self):
-        jobs = {"Acme": [{"title": "Engineer", "date": "5/1"}]}
-        links = {"Acme": "https://acme.com"}
-        icons = {"Acme": "https://cdn.example.com/acme.png"}
-        readme = _call_generate(jobs, links, icons=icons)
-        assert "<img" in readme
-        assert "https://cdn.example.com/acme.png" in readme
 
     def test_skips_empty_company(self):
         jobs = {"Acme": [], "Beta": [{"title": "Dev", "date": "5/1"}]}

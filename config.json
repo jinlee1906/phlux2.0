@@ -1,18 +1,8 @@
 {
   "EMAIL": {
-    "from": "phiwe3296@gmail.com",
-    "to": "phiwe3296@gmail.com",
-    "login": "phiwe3296@gmail.com",
-    "internship_bcc_enabled": true,
-    "internship_bcc": [
-      "dustin.nguyen16@gmail.com",
-      "brian.hwanhee.cho@gmail.com",
-      "jack.lipengzhu@gmail.com",
-      "sophia.xiang.2020@gmail.com"
-    ],
+    "internship_bcc_enabled": false,
+    "internship_bcc": [],
     "fulltime_enabled": false,
-    "fulltime_bcc": [
-    ]
+    "fulltime_bcc": []
   }
 }
-

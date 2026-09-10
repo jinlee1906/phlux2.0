@@ -1,24 +1,12 @@
-"""Shared utilities: WebDriver factory, icon fetching, and job-title helpers."""
+"""Shared utilities: WebDriver factory and job-title helpers."""
 from __future__ import annotations
 
-import json
-import logging
-import os
-from pathlib import Path
-from typing import List
-
-import requests
 import undetected_chromedriver as uc
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-from phlux.models import Company
-
-logger = logging.getLogger(__name__)
-
-_ICONS_PATH = Path(__file__).resolve().parent.parent / "icons.json"
 _CHROME_DRIVER_PATH: str | None = None
 
 
@@ -76,39 +64,3 @@ def get_driver(headless: bool = True, use_undetected: bool = False):
     for arg in chrome_args:
         options.add_argument(arg)
     return webdriver.Chrome(service=Service(_get_chrome_driver_path()), options=options)
-
-
-def update_icons(companies: List[Company]) -> None:
-    """Fetch and cache brand logos for each company via the Brandfetch API.
-
-    Existing entries in ``icons.json`` are preserved; only missing companies
-    trigger a network request.
-
-    Args:
-        companies: List of Company objects whose names will be looked up.
-    """
-    icons_id = os.environ["ICONS_ID"]
-
-    try:
-        with open(_ICONS_PATH, "r", encoding="utf-8") as f:
-            icons = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        icons = {}
-
-    for company in companies:
-        name = company.name
-        if name in icons:
-            continue
-        try:
-            response = requests.get(
-                f"https://api.brandfetch.io/v2/search/{name}?c={icons_id}",
-                timeout=10,
-            )
-            response.raise_for_status()
-            domain = response.json()[0]["domain"]
-            icons[name] = f"https://cdn.brandfetch.io/{domain}/w/400/h/400?c={icons_id}"
-        except Exception as e:
-            logger.warning("Failed to get icon for %s: %s", name, e)
-
-    with open(_ICONS_PATH, "w", encoding="utf-8") as f:
-        json.dump(icons, f, indent=2)
