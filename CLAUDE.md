@@ -14,5 +14,7 @@ Fork of Ph1so/phlux2.0. Full plan in @PROJECT_BRIEF.md — read it before starti
 - Default branch is main (verified against the GitHub remote).
 - Employer seed list is in employers_seed.csv. The Likely_ATS_UNVERIFIED column
   is a hypothesis to test, never an answer to trust.
-- Never use multi-line `python -c "..."` for scratch checks — it keeps coming out
-  malformed. Write a temp `.py` file and run that instead.
+- Never inline a non-trivial script as a shell one-liner — no multi-line `python -c "..."`,
+  no bash `for` loops with embedded quoted strings (e.g. a curl User-Agent). Both keep
+  coming out malformed. Write a temp `.py` (or `.sh`) file and run that instead. Prefer
+  Python + `requests` over shell loops of `curl` when probing multiple URLs.
