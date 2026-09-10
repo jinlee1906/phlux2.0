@@ -1,0 +1,101 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://www.agilityrobotics.com/about/job-post?gh_jid=5986011004",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 5149265004,
+      "location": {
+        "name": "Hybrid- Fremont, CA"
+      },
+      "metadata": null,
+      "id": 5986011004,
+      "updated_at": "2026-08-03T16:26:59-04:00",
+      "requisition_id": "725",
+      "title": "Accountant III",
+      "company_name": "Agility Robotics",
+      "first_published": "2026-05-01T14:35:29-04:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;Agility\u2019s commercially deployed humanoids operate alongside teams in warehouses, manufacturing facilities, and distribution centers\u2014tackling physica... [truncated for fixture]",
+      "departments": [
+        {
+          "id": 4064029004,
+          "name": "Accounting and Finance",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "offices": [
+        {
+          "id": 4088590004,
+          "name": "Fremont",
+          "location": "Fremont, California, United States",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": false,
+      "ai_opt_out_request_url": "http://app4.greenhouse.io/ai_opt_out_request/job_post/5986011004/ai_opt_out"
+    },
+    {
+      "absolute_url": "https://www.agilityrobotics.com/about/job-post?gh_jid=6110896004",
+      "data_compliance": [
+        {
+          "type": "gdpr",
+          "requires_consent": false,
+          "requires_processing_consent": false,
+          "requires_retention_consent": false,
+          "retention_period": null,
+          "demographic_data_consent_applies": false
+        }
+      ],
+      "internal_job_id": 5183685004,
+      "location": {
+        "name": "Remote"
+      },
+      "metadata": null,
+      "id": 6110896004,
+      "updated_at": "2026-09-08T17:20:09-04:00",
+      "requisition_id": "811",
+      "title": "Associate General Counsel, Corporate ",
+      "company_name": "Agility Robotics",
+      "first_published": "2026-08-11T12:42:53-04:00",
+      "language": "en",
+      "application_deadline": null,
+      "content": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;Agility\u2019s commercially deployed humanoids operate alongside teams in warehouses, manufacturing facilities, and distribution centers\u2014tackling physica... [truncated for fixture]",
+      "departments": [
+        {
+          "id": 4086649004,
+          "name": "Legal",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "offices": [
+        {
+          "id": 4037948004,
+          "name": "Remote",
+          "location": "Remote, Oregon, United States",
+          "child_ids": [],
+          "parent_id": null
+        }
+      ],
+      "ai_disclaimer": null,
+      "include_ai_disclaimer": false,
+      "ai_opt_out_request_url": "http://app4.greenhouse.io/ai_opt_out_request/job_post/6110896004/ai_opt_out"
+    }
+  ],
+  "meta": {
+    "total": 67
+  }
+}
