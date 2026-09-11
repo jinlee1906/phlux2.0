@@ -89,6 +89,10 @@ def test_load_target_regions_defaults_to_empty(tmp_path):
     assert load_target_regions(cfg) == []
 
 
+def test_real_config_json_has_expected_target_regions():
+    assert load_target_regions() == ["New York City", "California", "Pittsburgh"]
+
+
 # ── load_scoring_config ──────────────────────────────────────────────────────────
 
 def test_load_scoring_config_defaults(tmp_path):

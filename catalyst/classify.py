@@ -178,18 +178,95 @@ def extract_cohort(title: str, fiscal_year_end_month: Optional[int] = None) -> O
     return None
 
 
-# ── Location bonus (4d) ──────────────────────────────────────────────────────
+# ── Location (4d) ────────────────────────────────────────────────────────────
+
+_STATE_ABBREVIATIONS: Dict[str, str] = {
+    "alabama": "AL", "alaska": "AK", "arizona": "AZ", "arkansas": "AR", "california": "CA",
+    "colorado": "CO", "connecticut": "CT", "delaware": "DE", "florida": "FL", "georgia": "GA",
+    "hawaii": "HI", "idaho": "ID", "illinois": "IL", "indiana": "IN", "iowa": "IA",
+    "kansas": "KS", "kentucky": "KY", "louisiana": "LA", "maine": "ME", "maryland": "MD",
+    "massachusetts": "MA", "michigan": "MI", "minnesota": "MN", "mississippi": "MS",
+    "missouri": "MO", "montana": "MT", "nebraska": "NE", "nevada": "NV",
+    "new hampshire": "NH", "new jersey": "NJ", "new mexico": "NM", "new york": "NY",
+    "north carolina": "NC", "north dakota": "ND", "ohio": "OH", "oklahoma": "OK",
+    "oregon": "OR", "pennsylvania": "PA", "rhode island": "RI", "south carolina": "SC",
+    "south dakota": "SD", "tennessee": "TN", "texas": "TX", "utah": "UT", "vermont": "VT",
+    "virginia": "VA", "washington": "WA", "west virginia": "WV", "wisconsin": "WI",
+    "wyoming": "WY", "district of columbia": "DC",
+}
+_STATE_ABBR_VALUES = frozenset(_STATE_ABBREVIATIONS.values())
+
+# Strips a leading work-mode descriptor some ATSes prepend, e.g. Greenhouse's
+# "Hybrid- Fremont, CA". Requires a following "-"/":" so bare "Remote" (no
+# city at all) is left alone rather than stripped to an empty string.
+_LOCATION_PREFIX_RE = re.compile(r"^(hybrid|remote|onsite|on-site)\s*[-:]\s*", re.IGNORECASE)
+
+
+def normalize_location(raw_location: Optional[str]) -> Optional[str]:
+    """Normalize a raw ATS location string toward "City, ST" for US locations.
+
+    Strips a leading work-mode descriptor and converts a spelled-out US state
+    name to its 2-letter abbreviation (Workday sometimes returns
+    "Bethlehem, Pennsylvania" rather than "Bethlehem, PA"). International
+    locations have no "ST"-style abbreviation to normalize to, so they're
+    returned trimmed but otherwise unchanged.
+    """
+    if not raw_location:
+        return None
+    cleaned = _LOCATION_PREFIX_RE.sub("", raw_location).strip()
+    if not cleaned:
+        return None
+    if "," not in cleaned:
+        return cleaned
+
+    city_part, _, region_part = cleaned.rpartition(",")
+    city_part = city_part.strip()
+    region_part = region_part.strip()
+
+    abbr = _STATE_ABBREVIATIONS.get(region_part.lower())
+    if abbr:
+        region_part = abbr
+    elif region_part.upper() in _STATE_ABBR_VALUES:
+        region_part = region_part.upper()
+
+    return f"{city_part}, {region_part}"
+
 
 def _matches_target_region(location: Optional[str], target_regions: List[str]) -> bool:
-    """Placeholder region match: case-insensitive substring against *location*.
+    """Check *location* against configured target regions (for the +2 bonus).
 
-    Refined once target regions are actually configured (Phase 4d) — currently
-    a no-op since config.json's targets.regions defaults to empty.
+    A region that names a full US state ("California") matches any location
+    in that state. Anything else is treated as a city/metro name ("New York
+    City", "Pittsburgh") and matched word-boundary-safe against just the city
+    part of the location — deliberately not a raw substring check, so a
+    region like "CA" can't accidentally match a city like "Casablanca".
     """
     if not location or not target_regions:
         return False
-    lowered_location = location.lower()
-    return any(region.lower() in lowered_location for region in target_regions)
+
+    normalized = normalize_location(location) or ""
+    if "," in normalized:
+        city_part, _, state_part = normalized.rpartition(",")
+        city_part = city_part.strip().lower()
+        state_part = state_part.strip().lower()
+    else:
+        city_part, state_part = normalized.lower(), ""
+
+    for region in target_regions:
+        region_lower = region.strip().lower()
+        state_abbr = _STATE_ABBREVIATIONS.get(region_lower)
+        if state_abbr:
+            if state_part == state_abbr.lower():
+                return True
+            continue
+
+        # City/metro match: drop a trailing "city" word so "New York City"
+        # (the specific target) matches a location's city part of "New York".
+        city_region = re.sub(r"\bcity\b", "", region_lower).strip()
+        if city_region and re.search(rf"\b{re.escape(city_region)}\b", city_part):
+            return True
+
+    return False
 
 
 # ── Scoring (4a) ──────────────────────────────────────────────────────────────
@@ -209,9 +286,10 @@ def classify(
 ) -> Posting:
     """Classify and score *posting* in place, and return it for chaining.
 
-    Sets ``level``, ``cohort``, ``score``, and ``tags``. Does not decide
-    whether to drop the posting — compare the resulting score against a
-    configured ``min_score`` separately (S < 0 should be dropped, per 4a).
+    Sets ``level``, ``cohort``, ``score``, and ``tags``, and normalizes
+    ``location`` toward "City, ST" (see :func:`normalize_location`). Does not
+    decide whether to drop the posting — compare the resulting score against
+    a configured ``min_score`` separately (S < 0 should be dropped, per 4a).
 
     *fiscal_year_end_month* is this specific employer's verified fiscal year
     end (1-12), used only to interpret an FY-labeled cohort like "FY 2027" —
@@ -232,6 +310,7 @@ def classify(
     core_matches, sector_matches = _apply_gating(core_matches, sector_matches)
 
     location_bonus = 1 if _matches_target_region(posting.location, target_regions) else 0
+    posting.location = normalize_location(posting.location)
     days_since_seen = max(0, (today - posting.first_seen).days)
     decay = (math.log(2) / half_life_days) * days_since_seen
 

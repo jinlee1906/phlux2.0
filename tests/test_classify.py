@@ -10,6 +10,7 @@ from catalyst.classify import (
     classify,
     detect_level,
     extract_cohort,
+    normalize_location,
 )
 from catalyst.models import Level, Posting, Sector
 
@@ -255,26 +256,94 @@ class TestDecay:
         assert posting.score == pytest.approx(expected, abs=1e-9)
 
 
+class TestNormalizeLocation:
+    def test_strips_hybrid_prefix(self):
+        assert normalize_location("Hybrid- Fremont, CA") == "Fremont, CA"
+
+    def test_leaves_bare_remote_alone(self):
+        assert normalize_location("Remote") == "Remote"
+
+    def test_leaves_already_abbreviated_state(self):
+        assert normalize_location("Midland, MI") == "Midland, MI"
+
+    def test_spells_out_state_converted_to_abbreviation(self):
+        assert normalize_location("Bethlehem, Pennsylvania") == "Bethlehem, PA"
+
+    def test_international_location_left_as_is(self):
+        assert normalize_location("Duba, Saudi Arabia") == "Duba, Saudi Arabia"
+
+    def test_none_returns_none(self):
+        assert normalize_location(None) is None
+
+    def test_empty_string_returns_none(self):
+        assert normalize_location("") is None
+
+    def test_no_comma_no_state_returned_trimmed(self):
+        assert normalize_location("  Pittsburgh  ") == "Pittsburgh"
+
+
 class TestLocationBonus:
     def test_no_bonus_with_no_target_regions(self):
         posting = _make_posting("Process Engineer", location="Midland, MI", first_seen=date.today())
         classify(posting, target_regions=[])
         assert posting.score == 3.0
 
-    def test_bonus_applied_for_matching_region(self):
-        posting = _make_posting("Process Engineer", location="Midland, MI", first_seen=date.today())
-        classify(posting, target_regions=["Michigan"])
-        assert posting.score == 3.0  # no match: "Michigan" not substring of "Midland, MI"
-
-    def test_bonus_applied_for_matching_city(self):
-        posting = _make_posting("Process Engineer", location="Midland, MI", first_seen=date.today())
-        classify(posting, target_regions=["Midland"])
-        assert posting.score == 5.0  # +2 location bonus
-
     def test_no_bonus_when_location_missing(self):
         posting = _make_posting("Process Engineer", location=None, first_seen=date.today())
-        classify(posting, target_regions=["Midland"])
+        classify(posting, target_regions=["Pittsburgh"])
         assert posting.score == 3.0
+
+    def test_state_level_region_matches_any_city_in_state(self):
+        posting = _make_posting("Process Engineer", location="Midland, MI", first_seen=date.today())
+        classify(posting, target_regions=["Michigan"])
+        assert posting.score == 5.0
+
+    def test_state_level_region_matches_spelled_out_state_name(self):
+        posting = _make_posting("Process Engineer", location="Fremont, California", first_seen=date.today())
+        classify(posting, target_regions=["California"])
+        assert posting.score == 5.0
+
+    def test_california_matches_abbreviated_form(self):
+        posting = _make_posting("Process Engineer", location="Hybrid- Fremont, CA", first_seen=date.today())
+        classify(posting, target_regions=["California"])
+        assert posting.score == 5.0
+
+    def test_california_does_not_false_positive_on_casablanca(self):
+        posting = _make_posting("Process Engineer", location="Casablanca, Morocco", first_seen=date.today())
+        classify(posting, target_regions=["California"])
+        assert posting.score == 3.0  # no bonus — "CA" must not substring-match "Casablanca"
+
+    def test_new_york_city_matches_nyc_location(self):
+        posting = _make_posting("Process Engineer", location="New York, NY", first_seen=date.today())
+        classify(posting, target_regions=["New York City"])
+        assert posting.score == 5.0
+
+    def test_new_york_city_does_not_match_rest_of_state(self):
+        posting = _make_posting("Process Engineer", location="Buffalo, NY", first_seen=date.today())
+        classify(posting, target_regions=["New York City"])
+        assert posting.score == 3.0  # NYC is a city target, not the whole state
+
+    def test_pittsburgh_matches(self):
+        posting = _make_posting("Process Engineer", location="Pittsburgh, PA", first_seen=date.today())
+        classify(posting, target_regions=["Pittsburgh"])
+        assert posting.score == 5.0
+
+    def test_pittsburgh_does_not_match_other_pa_cities(self):
+        posting = _make_posting("Process Engineer", location="Bethlehem, PA", first_seen=date.today())
+        classify(posting, target_regions=["Pittsburgh"])
+        assert posting.score == 3.0
+
+    def test_configured_default_regions_all_work_together(self):
+        regions = ["New York City", "California", "Pittsburgh"]
+        for location in ("New York, NY", "Fremont, CA", "Pittsburgh, PA"):
+            posting = _make_posting("Process Engineer", location=location, first_seen=date.today())
+            classify(posting, target_regions=regions)
+            assert posting.score == 5.0, location
+
+    def test_location_normalized_as_a_side_effect(self):
+        posting = _make_posting("Process Engineer", location="Hybrid- Fremont, CA", first_seen=date.today())
+        classify(posting, target_regions=[])
+        assert posting.location == "Fremont, CA"
 
 
 class TestClassifySetsLevelAndCohort:

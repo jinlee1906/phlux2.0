@@ -7,7 +7,7 @@
   },
   "targets": {
     "levels": ["INTERNSHIP", "CO_OP"],
-    "regions": []
+    "regions": ["New York City", "California", "Pittsburgh"]
   },
   "scoring": {
     "half_life_days": 14,
