@@ -6,6 +6,7 @@ tenacity
 lxml
 python-dotenv
 requests
+pyyaml
 undetected-chromedriver
 setuptools
 pytest

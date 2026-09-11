@@ -1,0 +1,194 @@
+- name: Agility Robotics
+  sector: ROBOTICS
+  ats: GREENHOUSE
+  careers_url: https://www.agilityrobotics.com/careers
+  ats_config:
+    board_token: agilityrobotics
+  hq_region: Corvallis, OR
+  enabled: true
+- name: Air Products
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.airproducts.com/careers
+  ats_config:
+    tenant: airproducts
+    wd_host: wd5
+    site: AP0001
+  hq_region: Allentown, PA
+  enabled: true
+- name: Albemarle
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.albemarle.com/careers
+  ats_config:
+    tenant: albemarle
+    wd_host: wd5
+    site: External
+  hq_region: null
+  enabled: true
+- name: Amgen
+  sector: PHARMA_BIOTECH
+  ats: WORKDAY
+  careers_url: https://careers.amgen.com/en
+  ats_config:
+    tenant: amgen
+    wd_host: wd1
+    site: Careers
+  hq_region: null
+  enabled: true
+- name: bp
+  sector: OIL_GAS
+  ats: WORKDAY
+  careers_url: https://www.bp.com/en/global/corporate/careers.html
+  ats_config:
+    tenant: bpinternational
+    wd_host: wd3
+    site: bpCareers
+  hq_region: null
+  enabled: true
+- name: Bristol Myers Squibb
+  sector: PHARMA_BIOTECH
+  ats: WORKDAY
+  careers_url: https://careers.bms.com/
+  ats_config:
+    tenant: bristolmyerssquibb
+    wd_host: wd5
+    site: BMS
+  hq_region: null
+  enabled: true
+- name: Church & Dwight
+  sector: COSMETICS_FRAGRANCE
+  ats: WORKDAY
+  careers_url: https://churchdwight.com/careers/
+  ats_config:
+    tenant: churchdwight
+    wd_host: wd1
+    site: chdcareers
+  hq_region: null
+  enabled: true
+- name: ConocoPhillips
+  sector: OIL_GAS
+  ats: WORKDAY
+  careers_url: https://www.conocophillips.com/careers/
+  ats_config:
+    tenant: conocophillips
+    wd_host: wd1
+    site: External
+  hq_region: null
+  enabled: true
+- name: Dow
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://dow.wd1.myworkdayjobs.com/en-US/ExternalCareers
+  ats_config:
+    tenant: dow
+    wd_host: wd1
+    site: ExternalCareers
+  hq_region: null
+  enabled: true
+- name: Enovix
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.enovix.com/careers
+  ats_config:
+    tenant: enovix
+    wd_host: wd12
+    site: External
+  hq_region: Fremont, CA
+  enabled: true
+- name: Eos Energy Enterprises
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.eose.com/careers/
+  ats_config:
+    tenant: eosenergystorage
+    wd_host: wd1
+    site: EoS
+  hq_region: Edison, NJ
+  enabled: true
+- name: General Mills
+  sector: FOOD_CPG
+  ats: WORKDAY
+  careers_url: https://careers.generalmills.com/
+  ats_config:
+    tenant: genmills
+    wd_host: wd1
+    site: GMI_External_Careers
+  hq_region: null
+  enabled: true
+- name: Huntsman
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.huntsman.com/careers
+  ats_config:
+    tenant: huntsman
+    wd_host: wd1
+    site: Huntsman
+  hq_region: null
+  enabled: true
+- name: LG Energy Solution Arizona
+  sector: ENERGY_STORAGE
+  ats: GREENHOUSE
+  careers_url: https://job-boards.greenhouse.io/lgenergyaz
+  ats_config:
+    board_token: lgenergyaz
+  hq_region: Queen Creek, AZ
+  enabled: true
+- name: Merck
+  sector: PHARMA_BIOTECH
+  ats: WORKDAY
+  careers_url: https://jobs.merck.com/us/en
+  ats_config:
+    tenant: msd
+    wd_host: wd5
+    site: SearchJobs
+  hq_region: null
+  enabled: true
+- name: Moderna
+  sector: PHARMA_BIOTECH
+  ats: WORKDAY
+  careers_url: https://www.modernatx.com/careers
+  ats_config:
+    tenant: modernatx
+    wd_host: wd1
+    site: M_tx
+  hq_region: null
+  enabled: true
+- name: Pfizer
+  sector: PHARMA_BIOTECH
+  ats: WORKDAY
+  careers_url: https://www.pfizer.com/about/careers
+  ats_config:
+    tenant: pfizer
+    wd_host: wd1
+    site: PfizerCareers
+  hq_region: null
+  enabled: true
+- name: Plug Power
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.plugpower.com/careers/
+  ats_config:
+    tenant: plugpower
+    wd_host: wd5
+    site: Plug_Power_Inc
+  hq_region: Latham, NY
+  enabled: true
+- name: Sila Nanotechnologies
+  sector: ENERGY_STORAGE
+  ats: GREENHOUSE
+  careers_url: https://www.silanano.com/careers
+  ats_config:
+    board_token: silananotechnologies
+  hq_region: Alameda, CA
+  enabled: true
+- name: Xylem
+  sector: ENVIRONMENTAL
+  ats: WORKDAY
+  careers_url: https://www.xylem.com/en-us/careers/
+  ats_config:
+    tenant: xylem
+    wd_host: wd5
+    site: xylem-careers
+  hq_region: null
+  enabled: true
