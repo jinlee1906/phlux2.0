@@ -1,4 +1,4 @@
-"""Shared utilities: WebDriver factory and job-title helpers."""
+"""Shared utilities: WebDriver factory for the Selenium fallback and detection rendering."""
 from __future__ import annotations
 
 import undetected_chromedriver as uc
@@ -15,21 +15,6 @@ def _get_chrome_driver_path() -> str:
     if _CHROME_DRIVER_PATH is None:
         _CHROME_DRIVER_PATH = ChromeDriverManager().install()
     return _CHROME_DRIVER_PATH
-
-
-# Keywords that identify internship / co-op postings.
-_INTERN_KEYWORDS = ("intern", "ship", "co-op", "coop", "co op")
-
-
-def is_internship(title: str) -> bool:
-    """Return True if *title* matches internship or co-op keywords."""
-    lower = title.lower()
-    return any(kw in lower for kw in _INTERN_KEYWORDS)
-
-
-def is_full_time(title: str) -> bool:
-    """Return True if *title* does not match internship or co-op keywords."""
-    return not is_internship(title)
 
 
 def get_driver(headless: bool = True, use_undetected: bool = False):

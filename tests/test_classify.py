@@ -8,8 +8,10 @@ from catalyst.classify import (
     DEFAULT_HALF_LIFE_DAYS,
     DEFAULT_WEIGHTS,
     classify,
+    detect_country,
     detect_level,
     extract_cohort,
+    matches_target_country,
     normalize_location,
 )
 from catalyst.models import Level, Posting, Sector
@@ -328,6 +330,22 @@ class TestLocationBonus:
         classify(posting, target_regions=["Pittsburgh"])
         assert posting.score == 5.0
 
+    def test_bonus_gated_on_existing_keyword_match(self):
+        # Real case caught in Phase 6: "Internal Communications Intern" at
+        # Xylem scored 2.0 purely on the Pittsburgh bonus, with zero ChemE
+        # relevance. The bonus must not apply without a core/sector match.
+        posting = _make_posting(
+            "Internal Communications Intern", location="Pittsburgh, PA", first_seen=date.today()
+        )
+        classify(posting, target_regions=["Pittsburgh"])
+        assert posting.score == 0.0
+        assert posting.tags == []
+
+    def test_bonus_still_applies_with_sector_only_match(self):
+        posting = _make_posting("GMP Auditor", location="Pittsburgh, PA", first_seen=date.today())
+        classify(posting, target_regions=["Pittsburgh"])
+        assert posting.score == 3.0  # 1 (sector: gmp) + 2 (location)
+
     def test_pittsburgh_does_not_match_other_pa_cities(self):
         posting = _make_posting("Process Engineer", location="Bethlehem, PA", first_seen=date.today())
         classify(posting, target_regions=["Pittsburgh"])
@@ -388,3 +406,58 @@ class TestWeightsOverride:
         posting = _make_posting("Refinery Technician", first_seen=date.today())
         classify(posting, weights={"core": 10})
         assert posting.score == DEFAULT_WEIGHTS["sector"]
+
+
+class TestDetectCountry:
+    def test_literal_usa(self):
+        assert detect_country("USA - New Jersey - Rahway") == "US"
+
+    def test_literal_us_two_letter(self):
+        assert detect_country("US - California - Thousand Oaks") == "US"
+
+    def test_trailing_state_abbreviation(self):
+        assert detect_country("Pittsburgh, PA") == "US"
+
+    def test_trailing_spelled_out_state(self):
+        assert detect_country("Bethlehem, Pennsylvania") == "US"
+
+    def test_recognized_foreign_country_code(self):
+        assert detect_country("IRL - Carlow - Carlow") == "irl"
+
+    def test_recognized_foreign_country_name(self):
+        assert detect_country("Singapore - Singapore") == "singapore"
+
+    def test_ambiguous_aggregate_location_returns_none(self):
+        assert detect_country("2 Locations") is None
+
+    def test_ambiguous_bare_city_returns_none(self):
+        assert detect_country("Nova Place") is None
+
+    def test_none_input_returns_none(self):
+        assert detect_country(None) is None
+
+
+class TestMatchesTargetCountry:
+    def test_us_location_allowed_by_default(self):
+        assert matches_target_country("Pittsburgh, PA", ["US"]) is True
+
+    def test_foreign_location_excluded(self):
+        assert matches_target_country("IRL - Carlow - Carlow", ["US"]) is False
+
+    def test_ambiguous_location_not_excluded(self):
+        assert matches_target_country("2 Locations", ["US"]) is True
+
+    def test_no_target_countries_means_no_filter(self):
+        assert matches_target_country("IRL - Carlow - Carlow", []) is True
+
+    def test_foreign_location_allowed_when_listed(self):
+        assert matches_target_country("IRL - Carlow - Carlow", ["US", "IRL"]) is True
+
+
+class TestCountryFilterIntegration:
+    def test_classify_does_not_itself_filter_by_country(self):
+        # classify() only scores/tags — country filtering is a separate
+        # pipeline-level concern, same as level filtering.
+        posting = _make_posting("Process Engineer", location="IRL - Carlow - Carlow", first_seen=date.today())
+        classify(posting)
+        assert posting.score == 3.0

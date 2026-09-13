@@ -45,6 +45,16 @@ def load_target_regions(path: Path | str = DEFAULT_CONFIG_PATH) -> list[str]:
     return load_config(path).get("targets", {}).get("regions", [])
 
 
+# Countries a posting's location must match (or be ambiguous) to be kept.
+# Defaults to US-only — widen by editing config.json's targets.countries.
+DEFAULT_TARGET_COUNTRIES = ["US"]
+
+
+def load_target_countries(path: Path | str = DEFAULT_CONFIG_PATH) -> list[str]:
+    """Return allowed countries from ``config.json``'s ``targets.countries``."""
+    return load_config(path).get("targets", {}).get("countries", DEFAULT_TARGET_COUNTRIES)
+
+
 # Defaults for the Phase 4a scoring formula. half_life_days controls the
 # recency decay; weights are the per-category multipliers in the S formula.
 DEFAULT_SCORING_CONFIG: Dict[str, Any] = {

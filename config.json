@@ -7,11 +7,12 @@
   },
   "targets": {
     "levels": ["INTERNSHIP", "CO_OP"],
-    "regions": ["New York City", "California", "Pittsburgh"]
+    "regions": ["New York City", "California", "Pittsburgh"],
+    "countries": ["US"]
   },
   "scoring": {
     "half_life_days": 14,
-    "min_score": 0.0,
+    "min_score": 1.0,
     "weights": {
       "core": 3,
       "sector": 1,

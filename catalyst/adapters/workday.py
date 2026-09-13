@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from datetime import date, timedelta
 from typing import List
 
@@ -33,6 +34,10 @@ logger = logging.getLogger(__name__)
 _PAGE_SIZE = 20
 _MAX_PAGES = 100  # safety net against a pathological/incorrect "total"
 _TIMEOUT_SECONDS = 30
+# CLAUDE.md: minimum 2s between requests to the same host. A large employer
+# (e.g. Amgen, ~1774 postings / 20 per page = ~89 requests) would otherwise
+# hammer their API back-to-back across a whole pagination run.
+_PER_HOST_DELAY_SECONDS = 2.0
 
 _RELATIVE_DAYS_RE = re.compile(r"(\d+)\+?\s*days?", re.IGNORECASE)
 
@@ -118,6 +123,7 @@ class WorkdayAdapter:
                     offset += _PAGE_SIZE
                     if offset >= total:
                         break
+                    time.sleep(_PER_HOST_DELAY_SECONDS)
         except requests.RequestException as exc:
             logger.error("Workday fetch failed for %s: %s", employer.name, exc)
             return []

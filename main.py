@@ -1,87 +1,101 @@
-"""Entry point: scrape companies, persist results, and send internship email alerts."""
+"""Entry point: fetch every enabled employer, classify postings, and email a digest.
+
+Run with --dry-run to see the scored digest printed to stdout without
+sending mail or writing storage.json — safe to run repeatedly while testing.
+"""
 from __future__ import annotations
 
-import json
+import argparse
 import logging
 import os
 import smtplib
 from email.message import EmailMessage
-from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Dict, List
 
-from catalyst.config import load_config, load_email_config
-from catalyst.scraping import ScrapeManager, load_company_data
-from catalyst.utils import is_full_time, is_internship
+from catalyst.config import load_email_config
+from catalyst.models import Posting
+from catalyst.pipeline import run
 
 logger = logging.getLogger(__name__)
 
-# ── Email ─────────────────────────────────────────────────────────────────────
+_MAX_DIGEST_POSTINGS = 40
 
-def _format_email_html(message: Dict[str, Any], filter_fn: Callable[[str], bool], heading: str) -> str:
-    """Build an HTML email body, keeping only jobs that satisfy *filter_fn*."""
-    lines = [f'<h1 style="font-family: monospace;">{heading}</h1>']
-    lines.append('<hr style="margin-top: 30px; margin-bottom: 20px;">')
 
-    for company, jobs_data in message.get("companies", {}).items():
-        filtered = [
-            job["title"].strip().replace("\n", " ")
-            for job in jobs_data["jobs"]
-            if filter_fn(job["title"])
-        ]
-        if not filtered:
-            continue
+def _group_by_sector(postings: List[Posting]) -> Dict[str, List[Posting]]:
+    """Group *postings* by sector, each group sorted by score descending."""
+    by_sector: Dict[str, List[Posting]] = {}
+    for posting in postings:
+        by_sector.setdefault(posting.sector.value, []).append(posting)
+    for group in by_sector.values():
+        group.sort(key=lambda p: p.score, reverse=True)
+    return by_sector
 
-        lines.append('<div style="margin-bottom: 30px;">')
-        lines.append(
-            f'<h2 style="margin-bottom: 5px; font-family: monospace;">{company}</h2>'
-        )
+
+def format_digest_html(postings: List[Posting]) -> str:
+    """Build the HTML digest body: grouped by sector, capped, deep-linked."""
+    if not postings:
+        return '<p style="font-family: monospace;">No new postings today.</p>'
+
+    total = len(postings)
+    by_sector = _group_by_sector(postings[:_MAX_DIGEST_POSTINGS])
+
+    lines = [f'<h1 style="font-family: monospace;">{total} New Posting{"s" if total != 1 else ""}</h1>']
+    lines.append('<hr style="margin-top: 20px; margin-bottom: 20px;">')
+
+    for sector in sorted(by_sector):
+        lines.append(f'<h2 style="font-family: monospace;">{sector}</h2>')
         lines.append("<ul style='margin-top: 5px;'>")
-        for title in filtered:
-            lines.append(f"<li style='margin-bottom: 4px; font-family: monospace;'>{title}</li>")
+        for posting in by_sector[sector]:
+            tags = ", ".join(posting.tags) if posting.tags else "—"
+            location = posting.location or "Location unknown"
+            lines.append(
+                "<li style='margin-bottom: 8px; font-family: monospace;'>"
+                f'<a href="{posting.url}" target="_blank">{posting.title}</a> — {posting.employer}'
+                f"<br>{location} · score {posting.score:.1f} · {tags}</li>"
+            )
         lines.append("</ul>")
-        lines.append(
-            f'<p><strong>🔗 <a style="font-family: monospace;" '
-            f'href="{jobs_data["link"]}" target="_blank">Apply Here</a></strong></p>'
-        )
-        lines.append("</div>")
-        lines.append('<hr style="margin-top: 20px; margin-bottom: 20px;">')
 
-    lines.append(
-        '<p style="font-family: monospace;">💻 View all companies at '
-        '<a href="https://github.com/jinlee1906/phlux2.0" target="_blank">'
-        "github.com/jinlee1906/phlux2.0</a></p>"
-    )
+    if total > _MAX_DIGEST_POSTINGS:
+        lines.append(f'<p style="font-family: monospace;">+{total - _MAX_DIGEST_POSTINGS} more</p>')
+
     return "\n".join(lines)
 
 
-def format_message_html(message: Dict[str, Any]) -> str:
-    """Return the HTML body for the internship-alert email."""
-    return _format_email_html(message, is_internship, "Internships from Catalyst")
+def format_digest_text(postings: List[Posting]) -> str:
+    """Build a plain-text digest — used for --dry-run, where HTML isn't readable."""
+    if not postings:
+        return "No new postings today."
+
+    total = len(postings)
+    by_sector = _group_by_sector(postings[:_MAX_DIGEST_POSTINGS])
+
+    lines = [f"{total} New Posting{'s' if total != 1 else ''}", "=" * 40]
+    for sector in sorted(by_sector):
+        lines.append(f"\n{sector}")
+        lines.append("-" * len(sector))
+        for posting in by_sector[sector]:
+            tags = ", ".join(posting.tags) if posting.tags else "—"
+            location = posting.location or "Location unknown"
+            lines.append(f"  {posting.score:5.1f}  {posting.title}  ({posting.employer})")
+            lines.append(f"         {location} · tags: {tags}")
+            lines.append(f"         {posting.url}")
+
+    if total > _MAX_DIGEST_POSTINGS:
+        lines.append(f"\n+{total - _MAX_DIGEST_POSTINGS} more")
+
+    return "\n".join(lines)
 
 
-def format_message_html_fulltime(message: Dict[str, Any]) -> str:
-    """Return the HTML body for the full-time-role alert email."""
-    return _format_email_html(message, is_full_time, "Full-Time Roles from Catalyst")
-
-
-def _send_email_impl(
-    message: Dict[str, Any],
-    subject: str,
-    bcc: List[str],
-    format_fn: Callable[[Dict[str, Any]], str],
-    test: bool,
-    email_cfg: Dict[str, Any],
-) -> None:
-    """Build and send an email via Gmail SMTP."""
+def send_digest(postings: List[Posting]) -> None:
+    """Send the digest email via Gmail SMTP — single recipient, no BCC list."""
+    email_cfg = load_email_config()
     msg = EmailMessage()
-    msg["Subject"] = subject
+    msg["Subject"] = f"🚀 {len(postings)} new posting{'s' if len(postings) != 1 else ''}"
     msg["From"] = email_cfg["from"]
     msg["To"] = email_cfg["to"]
-    if not test and bcc:
-        msg["Bcc"] = ", ".join(bcc)
 
     msg.set_content("This email contains HTML. Please view it in an HTML-compatible client.")
-    msg.add_alternative(format_fn(message), subtype="html")
+    msg.add_alternative(format_digest_html(postings), subtype="html")
 
     password = os.environ["GMAIL_APP_PASSWORD"]
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
@@ -89,80 +103,28 @@ def _send_email_impl(
         smtp.send_message(msg)
 
 
-def send_email(message: Dict[str, Any], test: bool = False) -> None:
-    """Send the internship-alert email via Gmail SMTP."""
-    email_cfg = load_email_config()
-    _send_email_impl(
-        message,
-        subject="🚀 New Internship Alerts!",
-        bcc=email_cfg["internship_bcc"],
-        format_fn=format_message_html,
-        test=test,
-        email_cfg=email_cfg,
-    )
+def main(dry_run: bool = False) -> None:
+    """Run the full fetch -> classify -> filter -> alert pipeline."""
+    result = run(persist=not dry_run)
 
+    if dry_run:
+        print(format_digest_text(result.new))
+        print(f"\n({len(result.active)} active posting(s) total pass the score/level filter)")
+        return
 
-def send_email_fulltime(message: Dict[str, Any], test: bool = False) -> None:
-    """Send the full-time-role alert email via Gmail SMTP."""
-    email_cfg = load_email_config()
-    _send_email_impl(
-        message,
-        subject="💼 New Full-Time Role Alerts!",
-        bcc=email_cfg["fulltime_bcc"],
-        format_fn=format_message_html_fulltime,
-        test=test,
-        email_cfg=email_cfg,
-    )
-
-
-def has_internships(message: dict) -> bool:
-    """Return True if any job in *message* matches internship / co-op keywords.
-
-    Args:
-        message: Same structured dict as accepted by :func:`send_email`.
-    """
-    return any(
-        is_internship(job["title"])
-        for company_data in message.get("companies", {}).values()
-        for job in company_data.get("jobs", [])
-    )
-
-
-def has_full_time_roles(message: dict) -> bool:
-    """Return True if any job in *message* is a full-time (non-internship) role."""
-    return any(
-        is_full_time(job["title"])
-        for company_data in message.get("companies", {}).values()
-        for job in company_data.get("jobs", [])
-    )
-
-
-# ── Main ──────────────────────────────────────────────────────────────────────
-
-def main() -> None:
-    """Run the full scrape → store → alert pipeline."""
-    load_config()
-    manager = ScrapeManager()
-    companies = load_company_data()
-    result = manager.scrape_companies(companies=companies)
-
-    Path("storage.json").write_text(json.dumps(result["data"], indent=2), encoding="utf-8")
-
-    new_jobs = result["new_jobs"]
-    if new_jobs.get("companies"):
-        if has_internships(new_jobs):
-            send_email(new_jobs, test=False)
-        else:
-            print("Scrape complete: no new internship/co-op positions found.")
-        if not load_email_config()["fulltime_enabled"]:
-            print("Full-time emails are disabled in config; skipping.")
-        elif has_full_time_roles(new_jobs):
-            send_email_fulltime(new_jobs, test=False)
-        else:
-            print("Scrape complete: no new full-time positions found.")
+    if result.new:
+        send_digest(result.new)
+        print(f"Sent digest: {len(result.new)} new posting(s).")
     else:
-        print("Scrape complete: no new positions found.")
+        print("Scrape complete: no new postings found.")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the digest instead of emailing it, and don't write storage.json",
+    )
+    args = parser.parse_args()
+    main(dry_run=args.dry_run)

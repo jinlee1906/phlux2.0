@@ -269,6 +269,66 @@ def _matches_target_region(location: Optional[str], target_regions: List[str]) -
     return False
 
 
+# Known non-US country names/codes seen in real ATS location strings so far
+# (Workday's locationsText varies by employer — some spell the country out,
+# some use an ISO-ish code). Not exhaustive — add more as they turn up.
+_NON_US_COUNTRIES = frozenset({
+    "ireland", "irl", "united kingdom", "uk", "great britain", "england", "scotland", "wales",
+    "canada", "mexico", "germany", "france", "spain", "italy", "netherlands", "belgium",
+    "switzerland", "singapore", "malaysia", "india", "china", "japan", "south korea", "korea",
+    "australia", "brazil", "colombia", "chile", "argentina", "saudi arabia", "uae",
+    "united arab emirates", "qatar", "south africa", "nigeria", "egypt", "poland", "sweden",
+    "norway", "denmark", "finland", "austria", "portugal", "israel", "turkey", "thailand",
+    "vietnam", "indonesia", "philippines", "taiwan", "hong kong", "new zealand",
+})
+_US_INDICATOR_RE = re.compile(r"\b(usa|us|u\.s\.a?\.?|united states)\b", re.IGNORECASE)
+
+
+def detect_country(location: Optional[str]) -> Optional[str]:
+    """Best-effort country from a raw location string.
+
+    Returns "US" if a literal US indicator or a trailing US state
+    abbreviation/name is found, a recognized non-US country name/code if
+    one appears, or None if the format is ambiguous (a bare city, an
+    aggregate "N Locations" placeholder). This is deliberately a blocklist,
+    not a whitelist: an unrecognized format is never assumed foreign — only
+    a confidently-identified non-US country excludes a posting.
+    """
+    if not location:
+        return None
+    lowered = location.lower()
+
+    for country in _NON_US_COUNTRIES:
+        if re.search(rf"\b{re.escape(country)}\b", lowered):
+            return country
+
+    if _US_INDICATOR_RE.search(lowered):
+        return "US"
+
+    normalized = normalize_location(location) or ""
+    if "," in normalized:
+        _, _, region_part = normalized.rpartition(",")
+        if region_part.strip().upper() in _STATE_ABBR_VALUES:
+            return "US"
+
+    return None
+
+
+def matches_target_country(location: Optional[str], target_countries: List[str]) -> bool:
+    """True if *location* is allowed under *target_countries*, or ambiguous.
+
+    An ambiguous location (detect_country() returns None) is never
+    excluded — only a confidently-identified non-allowed country is.
+    """
+    if not target_countries:
+        return True
+    country = detect_country(location)
+    if country is None:
+        return True
+    allowed = {c.strip().lower() for c in target_countries}
+    return country.lower() in allowed
+
+
 # ── Scoring (4a) ──────────────────────────────────────────────────────────────
 
 DEFAULT_WEIGHTS: Dict[str, float] = {"core": 3, "sector": 1, "veto": -5, "location": 2}
@@ -291,6 +351,10 @@ def classify(
     decide whether to drop the posting — compare the resulting score against
     a configured ``min_score`` separately (S < 0 should be dropped, per 4a).
 
+    The location bonus only applies alongside an existing core/sector match
+    — a posting with zero keyword relevance never scores purely on
+    proximity to a target region.
+
     *fiscal_year_end_month* is this specific employer's verified fiscal year
     end (1-12), used only to interpret an FY-labeled cohort like "FY 2027" —
     see :func:`extract_cohort`. There's no employer registry to source this
@@ -309,7 +373,14 @@ def classify(
     veto_matches = _find_matches(normalized_title, VETO_KEYWORDS)
     core_matches, sector_matches = _apply_gating(core_matches, sector_matches)
 
-    location_bonus = 1 if _matches_target_region(posting.location, target_regions) else 0
+    # Gated on an existing core/sector match — otherwise a title with zero
+    # ChemE relevance (e.g. "Internal Communications Intern") scores purely
+    # on being near a target region, which is exactly backwards. Confirmed
+    # live: this was the single biggest false-positive source in Phase 6.
+    has_keyword_match = bool(core_matches or sector_matches)
+    location_bonus = (
+        1 if has_keyword_match and _matches_target_region(posting.location, target_regions) else 0
+    )
     posting.location = normalize_location(posting.location)
     days_since_seen = max(0, (today - posting.first_seen).days)
     decay = (math.log(2) / half_life_days) * days_since_seen

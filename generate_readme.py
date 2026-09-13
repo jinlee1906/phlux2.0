@@ -1,93 +1,94 @@
-"""Generate README.md from storage.json with a sorted HTML job table."""
+"""Generate README.md from storage.json — the top-scoring active postings.
+
+The upstream wrote every posting ever seen into the README, reaching 9 MB.
+This caps the rendered table at MAX_README_POSTINGS and writes the full
+history to data/postings.ndjson (newline-delimited JSON) instead —
+greppable, diffable, and it doesn't bloat the page.
+"""
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from catalyst.scraping import load_company_data
+from catalyst.classify import matches_target_country
+from catalyst.config import load_scoring_config, load_target_countries, load_target_levels
+from catalyst.pipeline import DEFAULT_STORAGE_PATH, load_storage
+
+MAX_README_POSTINGS = 200
+DATA_DIR = Path(__file__).resolve().parent / "data"
+HISTORY_PATH = DATA_DIR / "postings.ndjson"
 
 
-def load_company_links(csv_path: str = "companies.csv") -> Dict[str, str]:
-    """Return a mapping of company name → careers URL from the CSV."""
-    return {c.name: c.link for c in load_company_data(Path(csv_path))}
-
-
-def load_jobs(json_path: str = "storage.json") -> Dict[str, List[Any]]:
-    """Load the ``companies`` section from the storage JSON file."""
-    with open(json_path, encoding="utf-8") as f:
-        return json.load(f).get("companies", {})
-
-
-def generate_readme(jobs: Dict[str, List[Any]], links: Dict[str, str]) -> str:
-    """Build the full README Markdown string from job data.
-
-    Renders an HTML table of all postings sorted by date (most recent first).
-
-    Args:
-        jobs: Dict mapping company name → list of job dicts (with ``title``
-              and ``date`` keys) as stored in ``storage.json``.
-        links: Dict mapping company name → careers page URL.
-
-    Returns:
-        Complete README Markdown string.
+def load_active_postings(storage_path: Path | str = DEFAULT_STORAGE_PATH) -> List[Dict[str, Any]]:
+    """Load postings from storage.json that currently pass the score/level
+    filter (storage.json itself holds everything ever fetched), sorted by
+    score descending.
     """
-    total_jobs = sum(len(v) for v in jobs.values() if v)
+    stored = load_storage(storage_path)
+    min_score = load_scoring_config()["min_score"]
+    target_levels = set(load_target_levels())
+    target_countries = load_target_countries()
+
+    active = [
+        posting
+        for posting in stored.values()
+        if posting.get("score", 0) >= min_score
+        and posting.get("level") in target_levels
+        and matches_target_country(posting.get("location"), target_countries)
+    ]
+    active.sort(key=lambda p: p.get("score", 0), reverse=True)
+    return active
+
+
+def write_history(postings: List[Dict[str, Any]], path: Path = HISTORY_PATH) -> None:
+    """Write *postings* as newline-delimited JSON, one posting per line."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        for posting in postings:
+            f.write(json.dumps(posting) + "\n")
+
+
+def generate_readme(postings: List[Dict[str, Any]]) -> str:
+    """Build the README Markdown/HTML string from the top-scoring postings."""
+    total = len(postings)
+    shown = postings[:MAX_README_POSTINGS]
+
     lines = [
         "# 🌀 Catalyst: Chemical Engineering Job Tracker\n",
-        "Easily track jobs across top tech companies.\n",
-        f"\n---\n\n## 🔍 2025 Catalyst Job Listings\n"
-        f"*Found {total_jobs} roles across {len(jobs)} companies*\n",
+        "A personal job tracker for chemical engineering roles — process engineering, "
+        "manufacturing, R&D, bioprocess, refining, and adjacent work.\n",
+        f"\n---\n\n## 🔍 Top Postings\n"
+        f"*Showing the {len(shown)} highest-scoring of {total} active postings — "
+        f"full history in `data/postings.ndjson`*\n",
         """
 <table>
   <thead>
     <tr>
-      <th style="white-space: nowrap;">Company</th>
+      <th style="white-space: nowrap;">Employer</th>
       <th style="width: 100%;">Role</th>
-      <th style="width: 100px;">Date Found</th>
+      <th>Sector</th>
+      <th>Location</th>
+      <th>Score</th>
     </tr>
   </thead>
   <tbody>
 """,
     ]
 
-    all_jobs = []
-    for company, postings in jobs.items():
-        if not postings:
-            continue
-
-        company_display = company
-        company_link = links.get(company, "#")
-        linked_company = f'<a href="{company_link}">{company_display}</a>'
-
-        for role in postings:
-            if isinstance(role, dict):
-                title = role.get("title", "").replace("\n", " ").replace("|", "\\|").strip()
-                date_str = role.get("date", "N/A")
-            else:
-                title = role.replace("\n", " ").replace("|", "\\|").strip()
-                date_str = "N/A"
-
-            try:
-                # Include a fixed year to avoid the Python 3.15 ambiguous-date deprecation.
-                sort_date = datetime.strptime(f"2000/{date_str}", "%Y/%m/%d")
-            except ValueError:
-                sort_date = datetime.min
-
-            all_jobs.append((linked_company, title, date_str, sort_date))
-
-    all_jobs.sort(key=lambda x: x[3], reverse=True)
-
-    for company, title, date_str, _ in all_jobs:
-        role_cell = f'<div style="max-height:4.5em; overflow:auto; white-space:normal;">{title}</div>'
+    for posting in shown:
+        title = (posting.get("title") or "").replace("\n", " ").replace("|", "\\|").strip()
+        url = posting.get("url") or "#"
+        location = posting.get("location") or "—"
+        sector = posting.get("sector") or "—"
+        score = posting.get("score", 0.0)
         lines.append(
             f"""  <tr>
-  <td>
-  <div style="display: inline-flex; align-items: center; white-space: nowrap;">{company}</div>
-</td>
-  <td>{role_cell}</td>
-  <td>{date_str}</td>
+  <td>{posting.get("employer", "—")}</td>
+  <td><a href="{url}">{title}</a></td>
+  <td>{sector}</td>
+  <td>{location}</td>
+  <td>{score:.1f}</td>
 </tr>"""
         )
 
@@ -101,8 +102,11 @@ def generate_readme(jobs: Dict[str, List[Any]], links: Dict[str, str]) -> str:
 
 
 if __name__ == "__main__":
-    _links = load_company_links()
-    _jobs = load_jobs()
-    readme = generate_readme(_jobs, _links)
+    _postings = load_active_postings()
+    write_history(_postings)
+    readme = generate_readme(_postings)
     Path("README.md").write_text(readme, encoding="utf-8")
-    print("README.md updated successfully.")
+    print(
+        f"README.md updated: {min(len(_postings), MAX_README_POSTINGS)} of "
+        f"{len(_postings)} active postings shown; full history in {HISTORY_PATH}."
+    )

@@ -56,6 +56,11 @@ def _patched_session(*payloads):
 
 
 class TestWorkdayAdapter:
+    @pytest.fixture(autouse=True)
+    def _no_real_sleep(self):
+        with patch("catalyst.adapters.workday.time.sleep"):
+            yield
+
     def test_paginates_across_pages(self):
         page1 = _load_fixture("workday_airproducts_page1.json")
         page2 = _load_fixture("workday_airproducts_page2.json")
@@ -68,6 +73,26 @@ class TestWorkdayAdapter:
         titles = {p.title for p in postings}
         assert "Sr Contract Administrator" in titles
         assert "Senior Turbomachinery Design Engineer" in titles
+
+    def test_sleeps_between_pages_but_not_after_the_last_one(self):
+        # CLAUDE.md: 2s minimum between requests to the same host.
+        job = {"title": "A", "externalPath": "/job/a", "locationsText": "X", "postedOn": "Posted Today"}
+        page1 = {"total": 23, "jobPostings": [job] * 20}
+        page2 = {"total": 0, "jobPostings": [job] * 3}
+
+        with _patched_session(page1, page2), \
+             patch("catalyst.adapters.workday.time.sleep") as mock_sleep:
+            WorkdayAdapter().fetch(_make_employer())
+
+        mock_sleep.assert_called_once_with(2.0)
+
+    def test_no_sleep_when_only_one_page(self):
+        page1 = _load_fixture("workday_airproducts_page1.json")  # 3 postings, total=396 but small fixture
+        with _patched_session({"total": 3, "jobPostings": page1["jobPostings"]}), \
+             patch("catalyst.adapters.workday.time.sleep") as mock_sleep:
+            WorkdayAdapter().fetch(_make_employer())
+
+        mock_sleep.assert_not_called()
 
     def test_stops_when_a_page_has_no_postings(self):
         page1 = _load_fixture("workday_airproducts_page1.json")

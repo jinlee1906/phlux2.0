@@ -1,88 +1,149 @@
 """Tests for generate_readme.py."""
 import json
+from unittest.mock import patch
 
-import pytest
-
-from generate_readme import generate_readme, load_jobs
-
-
-# ── load_jobs ─────────────────────────────────────────────────────────────────
-
-class TestLoadJobs:
-    def test_returns_companies_dict(self, tmp_path):
-        storage = {"companies": {"Acme": [{"title": "Engineer", "date": "5/1"}]}}
-        f = tmp_path / "storage.json"
-        f.write_text(json.dumps(storage), encoding="utf-8")
-        result = load_jobs(str(f))
-        assert result == {"Acme": [{"title": "Engineer", "date": "5/1"}]}
-
-    def test_returns_empty_dict_when_companies_key_missing(self, tmp_path):
-        f = tmp_path / "storage.json"
-        f.write_text("{}", encoding="utf-8")
-        assert load_jobs(str(f)) == {}
-
-    def test_raises_for_missing_file(self, tmp_path):
-        with pytest.raises(FileNotFoundError):
-            load_jobs(str(tmp_path / "nonexistent.json"))
+from generate_readme import generate_readme, load_active_postings, write_history
 
 
-# ── generate_readme ───────────────────────────────────────────────────────────
+def _posting(**overrides):
+    defaults = dict(
+        employer="Acme",
+        title="Process Engineer",
+        url="https://acme.com/jobs/1",
+        location="Midland, MI",
+        sector="SPECIALTY_CHEM",
+        level="EXPERIENCED",
+        score=3.0,
+        tags=["process engineer"],
+        first_seen="2026-01-01",
+    )
+    defaults.update(overrides)
+    return defaults
 
-def _call_generate(jobs, links):
-    return generate_readme(jobs, links)
+
+class TestLoadActivePostings:
+    def test_filters_below_min_score(self, tmp_path):
+        storage_path = tmp_path / "storage.json"
+        storage_path.write_text(
+            json.dumps(
+                {
+                    "postings": {
+                        "a": _posting(title="Good", score=3.0),
+                        "b": _posting(title="Bad", score=-5.0),
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        scoring = {"min_score": 0.0, "half_life_days": 14, "weights": {}}
+        with patch("generate_readme.load_scoring_config", return_value=scoring), \
+             patch("generate_readme.load_target_levels", return_value=["EXPERIENCED"]):
+            active = load_active_postings(storage_path)
+        assert [p["title"] for p in active] == ["Good"]
+
+    def test_filters_by_target_level(self, tmp_path):
+        storage_path = tmp_path / "storage.json"
+        storage_path.write_text(
+            json.dumps(
+                {
+                    "postings": {
+                        "a": _posting(title="Wanted", level="INTERNSHIP"),
+                        "b": _posting(title="Unwanted", level="EXPERIENCED"),
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        scoring = {"min_score": 0.0, "half_life_days": 14, "weights": {}}
+        with patch("generate_readme.load_scoring_config", return_value=scoring), \
+             patch("generate_readme.load_target_levels", return_value=["INTERNSHIP"]):
+            active = load_active_postings(storage_path)
+        assert [p["title"] for p in active] == ["Wanted"]
+
+    def test_filters_by_target_country(self, tmp_path):
+        storage_path = tmp_path / "storage.json"
+        storage_path.write_text(
+            json.dumps(
+                {
+                    "postings": {
+                        "a": _posting(title="Wanted", location="Pittsburgh, PA"),
+                        "b": _posting(title="Unwanted", location="IRL - Carlow - Carlow"),
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        scoring = {"min_score": 0.0, "half_life_days": 14, "weights": {}}
+        with patch("generate_readme.load_scoring_config", return_value=scoring), \
+             patch("generate_readme.load_target_levels", return_value=["EXPERIENCED"]), \
+             patch("generate_readme.load_target_countries", return_value=["US"]):
+            active = load_active_postings(storage_path)
+        assert [p["title"] for p in active] == ["Wanted"]
+
+    def test_sorted_by_score_descending(self, tmp_path):
+        storage_path = tmp_path / "storage.json"
+        storage_path.write_text(
+            json.dumps(
+                {
+                    "postings": {
+                        "a": _posting(title="Low", score=1.0),
+                        "b": _posting(title="High", score=5.0),
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        scoring = {"min_score": 0.0, "half_life_days": 14, "weights": {}}
+        with patch("generate_readme.load_scoring_config", return_value=scoring), \
+             patch("generate_readme.load_target_levels", return_value=["EXPERIENCED"]):
+            active = load_active_postings(storage_path)
+        assert [p["title"] for p in active] == ["High", "Low"]
+
+
+class TestWriteHistory:
+    def test_writes_one_json_object_per_line(self, tmp_path):
+        path = tmp_path / "data" / "postings.ndjson"
+        postings = [_posting(title="A"), _posting(title="B")]
+        write_history(postings, path)
+        lines = path.read_text(encoding="utf-8").strip().split("\n")
+        assert len(lines) == 2
+        assert json.loads(lines[0])["title"] == "A"
+        assert json.loads(lines[1])["title"] == "B"
+
+    def test_creates_parent_directory(self, tmp_path):
+        path = tmp_path / "nested" / "data" / "postings.ndjson"
+        write_history([_posting()], path)
+        assert path.exists()
 
 
 class TestGenerateReadme:
-    def test_contains_job_count(self):
-        jobs = {"Acme": [{"title": "Engineer", "date": "5/1"}, {"title": "Intern", "date": "5/2"}]}
-        links = {"Acme": "https://acme.com"}
-        readme = _call_generate(jobs, links)
-        assert "2 roles" in readme
+    def test_contains_posting_count(self):
+        postings = [_posting(title="A"), _posting(title="B")]
+        readme = generate_readme(postings)
+        assert "2 highest-scoring of 2" in readme
 
-    def test_sorts_by_date_descending(self):
-        jobs = {
-            "Acme": [
-                {"title": "Old Job", "date": "1/5"},
-                {"title": "New Job", "date": "5/1"},
-            ]
-        }
-        links = {"Acme": "https://acme.com"}
-        readme = _call_generate(jobs, links)
-        assert readme.index("New Job") < readme.index("Old Job")
+    def test_contains_title_and_employer(self):
+        readme = generate_readme([_posting(title="Process Engineer", employer="Dow")])
+        assert "Process Engineer" in readme
+        assert "Dow" in readme
 
-    def test_handles_legacy_string_job_format(self):
-        jobs = {"Acme": ["Just a string role"]}
-        links = {"Acme": "https://acme.com"}
-        readme = _call_generate(jobs, links)
-        assert "Just a string role" in readme
+    def test_deep_links_to_posting_url(self):
+        readme = generate_readme([_posting(url="https://acme.com/jobs/42")])
+        assert 'href="https://acme.com/jobs/42"' in readme
 
     def test_escapes_pipe_in_title(self):
-        jobs = {"Acme": [{"title": "Software | Hardware Engineer", "date": "5/1"}]}
-        links = {"Acme": "https://acme.com"}
-        readme = _call_generate(jobs, links)
+        readme = generate_readme([_posting(title="Software | Hardware Engineer")])
         assert "\\|" in readme
 
-    def test_uses_hash_link_for_unknown_company(self):
-        jobs = {"UnknownCorp": [{"title": "Dev", "date": "5/1"}]}
-        links = {}  # company not in links
-        readme = _call_generate(jobs, links)
+    def test_uses_hash_link_when_url_missing(self):
+        readme = generate_readme([_posting(url=None)])
         assert 'href="#"' in readme
 
-    def test_handles_invalid_date_gracefully(self):
-        jobs = {"Acme": [{"title": "Engineer", "date": "N/A"}]}
-        links = {"Acme": "https://acme.com"}
-        readme = _call_generate(jobs, links)  # must not raise
-        assert "Engineer" in readme
+    def test_caps_at_200_postings(self):
+        postings = [_posting(title=f"Job {i}", score=float(i)) for i in range(210)]
+        readme = generate_readme(postings)
+        assert "200 highest-scoring of 210" in readme
 
-    def test_includes_company_link(self):
-        jobs = {"Acme": [{"title": "Engineer", "date": "5/1"}]}
-        links = {"Acme": "https://acme.com/careers"}
-        readme = _call_generate(jobs, links)
-        assert "https://acme.com/careers" in readme
-
-    def test_skips_empty_company(self):
-        jobs = {"Acme": [], "Beta": [{"title": "Dev", "date": "5/1"}]}
-        links = {"Acme": "https://acme.com", "Beta": "https://beta.com"}
-        readme = _call_generate(jobs, links)
-        # Acme has no postings, only Beta should contribute a row
-        assert "Dev" in readme
+    def test_empty_list_does_not_raise(self):
+        readme = generate_readme([])
+        assert "0 highest-scoring of 0" in readme
