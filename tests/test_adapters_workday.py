@@ -5,6 +5,7 @@ API (tests/fixtures/workday_airproducts_page*.json) — never hits the live
 endpoint.
 """
 import json
+import threading
 from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -200,6 +201,18 @@ class TestWorkdayAdapter:
             postings = WorkdayAdapter().fetch(_make_employer())
         assert postings == []
 
+    def test_http_error_is_not_retried(self):
+        # An HTTP error status is a real response, not a network hiccup —
+        # retrying it just wastes the 5s backoff on something that will
+        # deterministically fail the same way again.
+        session = MagicMock()
+        session.post.return_value = _mock_response({}, status_code=500)
+        session.__enter__.return_value = session
+        session.__exit__.return_value = False
+        with patch("catalyst.adapters.workday.requests.Session", return_value=session):
+            WorkdayAdapter().fetch(_make_employer())
+        assert session.post.call_count == 1
+
     def test_connection_error_degrades_to_empty_list(self):
         session = MagicMock()
         session.post.side_effect = requests.ConnectionError("boom")
@@ -208,6 +221,52 @@ class TestWorkdayAdapter:
         with patch("catalyst.adapters.workday.requests.Session", return_value=session):
             postings = WorkdayAdapter().fetch(_make_employer())
         assert postings == []
+
+    def test_connection_error_is_retried_once(self):
+        session = MagicMock()
+        session.post.side_effect = requests.ConnectionError("boom")
+        session.__enter__.return_value = session
+        session.__exit__.return_value = False
+        with patch("catalyst.adapters.workday.requests.Session", return_value=session):
+            WorkdayAdapter().fetch(_make_employer())
+        assert session.post.call_count == 2  # 1 initial attempt + 1 retry, then gives up
+
+    def test_timeout_is_retried_once(self):
+        session = MagicMock()
+        session.post.side_effect = requests.Timeout("timed out")
+        session.__enter__.return_value = session
+        session.__exit__.return_value = False
+        with patch("catalyst.adapters.workday.requests.Session", return_value=session):
+            postings = WorkdayAdapter().fetch(_make_employer())
+        assert postings == []
+        assert session.post.call_count == 2
+
+    def test_retry_waits_before_retrying(self):
+        session = MagicMock()
+        session.post.side_effect = requests.ConnectionError("boom")
+        session.__enter__.return_value = session
+        session.__exit__.return_value = False
+        with patch("catalyst.adapters.workday.requests.Session", return_value=session), \
+             patch("catalyst.adapters.workday.time.sleep") as mock_sleep:
+            WorkdayAdapter().fetch(_make_employer())
+        mock_sleep.assert_called_once_with(5)
+
+    def test_connection_error_then_success_returns_postings(self):
+        # A transient reset on the first attempt shouldn't lose real data if
+        # the retry succeeds.
+        page1 = _load_fixture("workday_airproducts_page1.json")
+        session = MagicMock()
+        session.post.side_effect = [
+            requests.ConnectionError("boom"),          # attempt 1: fails immediately
+            _mock_response(page1),                     # attempt 2, page 1: succeeds
+            _mock_response({"total": 0, "jobPostings": []}),  # attempt 2, page 2: ends pagination
+        ]
+        session.__enter__.return_value = session
+        session.__exit__.return_value = False
+        with patch("catalyst.adapters.workday.requests.Session", return_value=session):
+            postings = WorkdayAdapter().fetch(_make_employer())
+        assert len(postings) == 3
+        assert postings[0].title == "Sr Contract Administrator"
 
     def test_malformed_json_degrades_to_empty_list(self):
         response = MagicMock()
@@ -242,3 +301,50 @@ class TestWorkdayAdapter:
             WorkdayAdapter().fetch(_make_employer())
         _, kwargs = session.post.call_args_list[0]
         assert kwargs["json"] == {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": ""}
+
+
+class TestWorkdayHostLock:
+    """No autouse time.sleep patch here — this class's fetches never reach a
+    page-delay or retry-wait call, so there's nothing to mock, and keeping
+    that patch out avoids any doubt about whether it's masking the result.
+    """
+
+    def test_serializes_concurrent_fetches_across_employers(self):
+        # Real threads, not mocks — this is checking actual serialization
+        # behavior of a threading.Lock, which a mock can't demonstrate.
+        active = {"current": 0, "max": 0}
+        active_lock = threading.Lock()
+
+        def slow_post(*args, **kwargs):
+            with active_lock:
+                active["current"] += 1
+                active["max"] = max(active["max"], active["current"])
+            # Not time.sleep(): this class has no time.sleep patch, and using
+            # a different primitive keeps that fact irrelevant either way.
+            threading.Event().wait(0.05)
+            with active_lock:
+                active["current"] -= 1
+            response = MagicMock()
+            response.raise_for_status = MagicMock()
+            response.json.return_value = {"total": 0, "jobPostings": []}
+            return response
+
+        session = MagicMock()
+        session.post.side_effect = slow_post
+        session.__enter__.return_value = session
+        session.__exit__.return_value = False
+
+        employer_a = _make_employer(name="Employer A")
+        employer_b = _make_employer(name="Employer B")
+
+        with patch("catalyst.adapters.workday.requests.Session", return_value=session):
+            threads = [
+                threading.Thread(target=WorkdayAdapter().fetch, args=(employer_a,)),
+                threading.Thread(target=WorkdayAdapter().fetch, args=(employer_b,)),
+            ]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(timeout=5)
+
+        assert active["max"] == 1, "two Workday fetches ran concurrently — the host lock isn't serializing them"

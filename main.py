@@ -12,9 +12,15 @@ import smtplib
 from email.message import EmailMessage
 from typing import Dict, List
 
+from dotenv import load_dotenv
+
 from catalyst.config import load_email_config
 from catalyst.models import Posting
 from catalyst.pipeline import run
+
+# Loads .env into the environment if present (see .env.example) — a no-op
+# if it doesn't exist, so CI (which sets real env vars directly) is unaffected.
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
