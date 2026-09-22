@@ -96,7 +96,7 @@ def send_digest(postings: List[Posting]) -> None:
     """Send the digest email via Gmail SMTP — single recipient, no BCC list."""
     email_cfg = load_email_config()
     msg = EmailMessage()
-    msg["Subject"] = f"🚀 {len(postings)} new posting{'s' if len(postings) != 1 else ''}"
+    msg["Subject"] = f"🍌 Your minions have found {len(postings)} new job{'s' if len(postings) != 1 else ''}"
     msg["From"] = email_cfg["from"]
     msg["To"] = email_cfg["to"]
 
