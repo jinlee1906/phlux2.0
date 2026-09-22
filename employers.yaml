@@ -16,6 +16,16 @@
     board_token: agilityrobotics
   hq_region: Corvallis, OR
   enabled: true
+- name: Air Liquide
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.airliquide.com/careers
+  ats_config:
+    tenant: airliquidehr
+    wd_host: wd3
+    site: AirLiquideExternalCareer
+  hq_region: Paris, France
+  enabled: true
 - name: Air Products
   sector: SPECIALTY_CHEM
   ats: WORKDAY
@@ -62,6 +72,26 @@
     board_token: archer56
   hq_region: San Jose, CA
   enabled: true
+- name: Array Technologies
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.arraytechinc.com/careers/
+  ats_config:
+    tenant: arraytechinc
+    wd_host: wd5
+    site: Array_Careers
+  hq_region: Albuquerque, NM
+  enabled: true
+- name: Bloom Energy
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.bloomenergy.com/careers/
+  ats_config:
+    tenant: bloomenergy
+    wd_host: wd1
+    site: BloomEnergyCareers
+  hq_region: San Jose, CA
+  enabled: true
 - name: Boeing
   sector: AEROSPACE
   ats: WORKDAY
@@ -92,6 +122,14 @@
     site: bpCareers
   hq_region: null
   enabled: true
+- name: Bright Machines
+  sector: ROBOTICS
+  ats: LEVER
+  careers_url: https://www.brightmachines.com/careers
+  ats_config:
+    company: brightmachines
+  hq_region: San Francisco, CA
+  enabled: true
 - name: Bristol Myers Squibb
   sector: PHARMA_BIOTECH
   ats: WORKDAY
@@ -111,6 +149,16 @@
     wd_host: wd12
     site: Careers
   hq_region: Boston, MA
+  enabled: true
+- name: Chemours
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.chemours.com/en/careers
+  ats_config:
+    tenant: chemours
+    wd_host: wd103
+    site: chemours
+  hq_region: Wilmington, DE
   enabled: true
 - name: Church & Dwight
   sector: COSMETICS_FRAGRANCE
@@ -142,6 +190,26 @@
     site: ExternalCareers
   hq_region: null
   enabled: true
+- name: Duke Energy
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.duke-energy.com/our-company/careers
+  ats_config:
+    tenant: dukeenergy
+    wd_host: wd1
+    site: search
+  hq_region: Charlotte, NC
+  enabled: true
+- name: Ecolab
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.ecolab.com/careers
+  ats_config:
+    tenant: ecolab
+    wd_host: wd1
+    site: Ecolab_External
+  hq_region: Saint Paul, MN
+  enabled: true
 - name: Enovix
   sector: ENERGY_STORAGE
   ats: WORKDAY
@@ -170,6 +238,16 @@
     board_token: figureai
   hq_region: San Jose, CA
   enabled: true
+- name: GE Vernova
+  sector: ENERGY_STORAGE
+  ats: WORKDAY
+  careers_url: https://www.gevernova.com/careers
+  ats_config:
+    tenant: gevernova
+    wd_host: wd5
+    site: Vernova_ExternalSite
+  hq_region: Cambridge, MA
+  enabled: true
 - name: General Mills
   sector: FOOD_CPG
   ats: WORKDAY
@@ -180,6 +258,14 @@
     site: GMI_External_Careers
   hq_region: null
   enabled: true
+- name: Group14 Technologies
+  sector: ENERGY_STORAGE
+  ats: GREENHOUSE
+  careers_url: https://group14.technology/careers
+  ats_config:
+    board_token: group14
+  hq_region: Woodinville, WA
+  enabled: true
 - name: Huntsman
   sector: SPECIALTY_CHEM
   ats: WORKDAY
@@ -189,6 +275,24 @@
     wd_host: wd1
     site: Huntsman
   hq_region: null
+  enabled: true
+- name: IFF
+  sector: COSMETICS_FRAGRANCE
+  ats: WORKDAY
+  careers_url: https://www.iff.com/careers
+  ats_config:
+    tenant: iff
+    wd_host: wd5
+    site: IFF_Careers
+  hq_region: New York, NY
+  enabled: true
+- name: ispace
+  sector: AEROSPACE
+  ats: LEVER
+  careers_url: https://ispace-inc.com/careers/
+  ats_config:
+    company: ispace-inc
+  hq_region: Tokyo, Japan
   enabled: true
 - name: LG Energy Solution Arizona
   sector: ENERGY_STORAGE
@@ -282,6 +386,14 @@
     board_token: silananotechnologies
   hq_region: Alameda, CA
   enabled: true
+- name: Solid Power
+  sector: ENERGY_STORAGE
+  ats: GREENHOUSE
+  careers_url: https://solidpowerbattery.com/careers/
+  ats_config:
+    board_token: solidpower
+  hq_region: Louisville, CO
+  enabled: true
 - name: Toyota Research Institute
   sector: ROBOTICS
   ats: LEVER
@@ -289,6 +401,14 @@
   ats_config:
     company: tri
   hq_region: Los Altos, CA
+  enabled: true
+- name: Varda Space Industries
+  sector: AEROSPACE
+  ats: GREENHOUSE
+  careers_url: https://www.varda.com/careers
+  ats_config:
+    board_token: vardaspace
+  hq_region: El Segundo, CA
   enabled: true
 - name: Xylem
   sector: ENVIRONMENTAL

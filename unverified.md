@@ -384,3 +384,47 @@ All three fetched and rendered successfully but show no third-party ATS referenc
 job listings are served from the company's own domain via a proprietary system (e.g.
 `jobs.apple.com`'s own path structure, `spacex.com/careers/jobs`, `blueorigin.com/careers/...`
 per-role subpaths), not one of the five supported ATSes.
+
+## Adjacent-industry expansion batch — 13 of 80 verified
+
+User approved a ~80-company candidate list drawn from industries adjacent to their background
+(battery/electrochemistry, fragrance/beauty, soft robotics, propulsion/rocketry, power/solar,
+and broad specialty chemicals), plus larger established companies at their request. 13 verified
+into `employers.yaml`: Solid Power, Group14 Technologies (GREENHOUSE); Array Technologies, Bloom
+Energy, GE Vernova, Duke Energy, IFF, Chemours, Ecolab, Air Liquide (WORKDAY); Bright Machines,
+ispace (LEVER); Varda Space Industries (GREENHOUSE). Each was confirmed via a real API call
+returning plausible, employer-relevant postings (e.g. Solid Power: "Cell Slurry Engineering
+Intern," Louisville/Thornton CO — matches its real HQ; Chemours: Parkersburg WV / Wilmington DE
+— matches its real plant/HQ locations).
+
+### ABL Space Systems — literal reference found, but the ATS itself is inactive
+
+`ablspacesystems.com/careers/` has a real, current "View All Available Jobs" button linking to
+`jobs.lever.co/ablspacesystems` — not guessed, confirmed by inspecting the HTML context around
+the link directly. But calling the actual Lever API (`api.lever.co/v0/postings/ablspacesystems`)
+returns a 404, meaning that board is empty or deactivated even though the company's own site
+still links to it. Not added — the evidence is genuine but there's no live data to verify
+against. Worth rechecking later in case they reactivate it.
+
+### Unsupported ATS platform found (literal reference, no adapter exists)
+
+- **American Battery Technology Company, Amprius Technologies** — Workable
+- **KORE Power** — Ashby
+- **Duracell, First Solar** — Oracle Cloud HCM
+- **Energizer Holdings, Schneider Electric, Celanese, Trinseo** — iCIMS
+- **Enphase Energy** — Jobvite
+
+### Bot-blocked even via Selenium rendering
+
+Natron Energy, ONE (Our Next Energy), Freyr Battery, EnPower, Lanxess.
+
+### No known ATS reference found, even in the fully-rendered DOM
+
+Same unresolved class as the earlier JS-rendered groups above (dynamic XHR job search, nothing
+static to find): A123 Systems, Aerojet Rocketdyne, Ambri, Amorepacific, Arkema, Ascend Elements,
+Ashland, Avient, BYD, Berkshire Grey, CATL, Clariant, Clarins, Corteva, Coty, Covariant,
+Covestro, Eastman Chemical, Ekso Bionics, Element Solutions, EnerSys, Evonik, Firefly Aerospace,
+Formlabs, Impulse Space, Kenvue, L3Harris, LG Chem, Li-Cycle, Maxeon Solar, NextEra Energy,
+Panasonic Energy of North America, Physical Intelligence, Puig, Qcells, RIOS Intelligent
+Machines, Revlon, SK On, Samsung SDI, Siemens Energy, SolarEdge, Solvay, Stoke Space, Symrise,
+T. Hasegawa, Takasago, Textron, Ursa Major, Vast, Vestas, Wacker Chemie.
