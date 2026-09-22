@@ -1,3 +1,13 @@
+- name: 3M
+  sector: MATERIALS
+  ats: WORKDAY
+  careers_url: https://www.3m.com/3M/en_US/careers-us/
+  ats_config:
+    tenant: 3m
+    wd_host: wd1
+    site: Search
+  hq_region: Maplewood, MN
+  enabled: true
 - name: Agility Robotics
   sector: ROBOTICS
   ats: GREENHOUSE
@@ -36,6 +46,42 @@
     site: Careers
   hq_region: null
   enabled: true
+- name: Anduril
+  sector: ROBOTICS
+  ats: GREENHOUSE
+  careers_url: https://www.anduril.com/open-roles/
+  ats_config:
+    board_token: andurilindustries
+  hq_region: Costa Mesa, CA
+  enabled: true
+- name: Archer Aviation
+  sector: AEROSPACE
+  ats: GREENHOUSE
+  careers_url: https://archer.com/careers/
+  ats_config:
+    board_token: archer56
+  hq_region: San Jose, CA
+  enabled: true
+- name: Boeing
+  sector: AEROSPACE
+  ats: WORKDAY
+  careers_url: https://jobs.boeing.com/
+  ats_config:
+    tenant: boeing
+    wd_host: wd1
+    site: EXTERNAL_CAREERS
+  hq_region: Arlington, VA
+  enabled: true
+- name: Boston Dynamics
+  sector: ROBOTICS
+  ats: WORKDAY
+  careers_url: https://bostondynamics.com/careers/
+  ats_config:
+    tenant: bostondynamics
+    wd_host: wd1
+    site: Boston_Dynamics
+  hq_region: Waltham, MA
+  enabled: true
 - name: bp
   sector: OIL_GAS
   ats: WORKDAY
@@ -55,6 +101,16 @@
     wd_host: wd5
     site: BMS
   hq_region: null
+  enabled: true
+- name: Cabot
+  sector: MATERIALS
+  ats: WORKDAY
+  careers_url: https://www.cabotcorp.com/careers
+  ats_config:
+    tenant: cabotcorp
+    wd_host: wd12
+    site: Careers
+  hq_region: Boston, MA
   enabled: true
 - name: Church & Dwight
   sector: COSMETICS_FRAGRANCE
@@ -106,6 +162,14 @@
     site: EoS
   hq_region: Edison, NJ
   enabled: true
+- name: Figure AI
+  sector: ROBOTICS
+  ats: GREENHOUSE
+  careers_url: https://www.figure.ai/careers/
+  ats_config:
+    board_token: figureai
+  hq_region: San Jose, CA
+  enabled: true
 - name: General Mills
   sector: FOOD_CPG
   ats: WORKDAY
@@ -154,6 +218,14 @@
     site: M_tx
   hq_region: null
   enabled: true
+- name: Path Robotics
+  sector: ROBOTICS
+  ats: GREENHOUSE
+  careers_url: https://path-robotics.com/careers
+  ats_config:
+    board_token: pathrobotics
+  hq_region: Columbus, OH
+  enabled: true
 - name: Pfizer
   sector: PHARMA_BIOTECH
   ats: WORKDAY
@@ -174,6 +246,34 @@
     site: Plug_Power_Inc
   hq_region: Latham, NY
   enabled: true
+- name: Samsung
+  sector: SEMICONDUCTOR
+  ats: WORKDAY
+  careers_url: https://www.samsung.com/us/careers/
+  ats_config:
+    tenant: sec
+    wd_host: wd3
+    site: Samsung_Careers
+  hq_region: Austin, TX
+  enabled: true
+- name: Shield AI
+  sector: ROBOTICS
+  ats: LEVER
+  careers_url: https://shield.ai/careers/
+  ats_config:
+    company: shieldai
+  hq_region: San Diego, CA
+  enabled: true
+- name: Sierra Space
+  sector: AEROSPACE
+  ats: WORKDAY
+  careers_url: https://www.sierraspace.com/careers/
+  ats_config:
+    tenant: sierraspace
+    wd_host: wd1
+    site: Sierra_Space_External_Career_Site
+  hq_region: Louisville, CO
+  enabled: true
 - name: Sila Nanotechnologies
   sector: ENERGY_STORAGE
   ats: GREENHOUSE
@@ -181,6 +281,14 @@
   ats_config:
     board_token: silananotechnologies
   hq_region: Alameda, CA
+  enabled: true
+- name: Toyota Research Institute
+  sector: ROBOTICS
+  ats: LEVER
+  careers_url: https://www.tri.global/careers/
+  ats_config:
+    company: tri
+  hq_region: Los Altos, CA
   enabled: true
 - name: Xylem
   sector: ENVIRONMENTAL

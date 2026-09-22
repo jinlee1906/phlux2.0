@@ -338,3 +338,49 @@ group, 44 employers).
   network-traffic inspection (e.g. Selenium's performance/CDP logging) or a user click to
   trigger the job search, both meaningfully bigger asks than a one-shot render. Not pursued
   further this pass, per instruction to stop escalating and move to Phase 6.
+
+## 35-employer seed backlog re-check — 12 of 35 verified (materials/robotics/aerospace batch)
+
+Re-ran verification against every seed employer that had never been attempted before (see
+`employers_seed.csv`). 12 verified into `employers.yaml` (Cabot, 3M, Samsung, Boston Dynamics,
+Boeing — all WORKDAY; Anduril, Figure AI, Path Robotics, Archer Aviation — all GREENHOUSE;
+Shield AI, Toyota Research Institute — LEVER; Sierra Space — WORKDAY). Notably, two seed
+hypotheses turned out wrong on real evidence: **Anduril** was hypothesized LEVER but is actually
+GREENHOUSE (`andurilindustries`, 2348 postings), and **Shield AI** was hypothesized GREENHOUSE
+but its own primary board is actually LEVER (`shieldai`, 508 postings) — a second, unrelated
+company's Greenhouse board (`aechelontechnology`, an acquired subsidiary kept as a separate
+brand) is also linked from the same page and was correctly rejected as a distinct entity.
+
+### Astrobotic — real ATS reference found, but rejected as a false positive
+
+`astrobotic.com/careers/` embeds `boards.greenhouse.io/embed/job_board/js?for=voyagertechnologiesinc`
+— a literal reference, not guessed. But the returned postings (Denver/Pueblo, CO — "Analytical
+Chemist," "Agentic GEOINT Mission Management Lead") are generic corporate roles with no
+Astrobotic/Pittsburgh/lunar-lander connection. Voyager Technologies holds a majority stake in
+Astrobotic and Astrobotic's site pulls from Voyager's shared multi-subsidiary Greenhouse board,
+not an Astrobotic-specific feed. Adding this would mislabel unrelated Voyager Technologies
+postings as "Astrobotic" — same class of problem as the Colgate-Palmolive SuccessFactors false
+positive. Not added.
+
+### Joby Aviation — real ATS reference found, but unsupported ATS
+
+`jobyaviation.com/careers` (rendered) links to `careers-jobyaviation.icims.com/jobs` — literal
+evidence, but iCIMS isn't one of this project's five supported ATSes (Workday, Greenhouse,
+Lever, SuccessFactors) and has no adapter.
+
+### PPG, Sherwin-Williams, Meta Reality Labs, Skild AI, Near Earth Autonomy, Carnegie Robotics, Apptronik, 1X Technologies, Sanctuary AI, Dexterity, Soft Robotics Inc, Beta Technologies, Rocket Lab, Relativity Space, Lockheed Martin, Northrop Grumman, RTX
+
+All fetched successfully (or were bot-blocked on the plain HTTP request but rendered fine via
+Selenium), and were checked against the fully-rendered DOM — no known ATS reference (Workday,
+Greenhouse, Lever, SuccessFactors, Ashby) found in any of them, including a second attempt at a
+deeper "open-roles"/"careers/open-roles" path for several (Aurora Innovation, 1X Technologies,
+Beta Technologies, Rocket Lab, Relativity Space). Their real job-search call is presumably a
+dynamic XHR that never lands as a literal string in `driver.page_source` — same unresolved class
+as the 43-employer "JS-rendered" group already logged above.
+
+### Apple, SpaceX, Blue Origin — bespoke in-house career portal
+
+All three fetched and rendered successfully but show no third-party ATS reference of any kind —
+job listings are served from the company's own domain via a proprietary system (e.g.
+`jobs.apple.com`'s own path structure, `spacex.com/careers/jobs`, `blueorigin.com/careers/...`
+per-role subpaths), not one of the five supported ATSes.
