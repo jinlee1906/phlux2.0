@@ -204,7 +204,14 @@ supported ATSes.
 
 **AbbVie** — `careers.abbvie.com/` loads (95KB), no known ATS reference.
 
-**Johnson & Johnson** — `careers.jnj.com/` fetch failed entirely (bot-blocked).
+**Johnson & Johnson** — `careers.jnj.com/` fetch failed entirely via plain HTTP (bot-blocked), but
+a headless Selenium render got through cleanly. The rendered page turned out to carry a real
+Workday reference (`jj.wd5.myworkdayjobs.com/JJ/login`, `/JJ/jobAlerts`, etc. — candidate-portal
+links, not the job search UI itself, but the tenant/host/site pattern reads directly off them the
+same way Air Products' did). Verified against the real CXS API: tenant=jj, wd_host=wd5, site=JJ
+returns 1976 real postings with deep links. Moved to `employers.yaml` as WORKDAY, not left here
+and not routed through the Selenium fallback — the JSON adapter is strictly better (deep links,
+real dates, full pagination) whenever the real ATS turns out to be one of the three supported.
 
 **Incyte** — `careers.incyte.com/` shows an `icims.com` mention, but only inside a generic
 privacy-policy disclaimer (a `privacy@icims.com` contact + a `jibe.com` privacy-policy link) —
@@ -378,12 +385,58 @@ Beta Technologies, Rocket Lab, Relativity Space). Their real job-search call is 
 dynamic XHR that never lands as a literal string in `driver.page_source` — same unresolved class
 as the 43-employer "JS-rendered" group already logged above.
 
-### Apple, SpaceX, Blue Origin — bespoke in-house career portal
+### Blue Origin — bespoke in-house career portal
 
-All three fetched and rendered successfully but show no third-party ATS reference of any kind —
-job listings are served from the company's own domain via a proprietary system (e.g.
-`jobs.apple.com`'s own path structure, `spacex.com/careers/jobs`, `blueorigin.com/careers/...`
-per-role subpaths), not one of the five supported ATSes.
+`blueorigin.com/careers` fetches and renders successfully but shows no third-party ATS reference
+of any kind — job listings are served from the company's own domain via a proprietary system.
+The only repeating "card" elements on the rendered page turned out to be marketing/testimonial
+photo cards, not postings — the real job search is a dynamic XHR call with nothing static or
+rendered-DOM to scrape.
+
+### Apple, SpaceX — corrected: moved to employers.yaml
+
+Originally grouped with Blue Origin above as "bespoke in-house portal, no third-party ATS
+reference" — a follow-up pilot with a longer render wait and a direct search inside
+`jobs.apple.com` found real evidence for both:
+
+- **Apple** — `jobs.apple.com`'s own job-title links have no third-party ATS, so it's onboarded
+  via the Selenium fallback adapter (Phase 3 item 5) with a real, verified CSS selector
+  (`.job-title-link a`) against three targeted search queries (process/battery/materials
+  engineer, each confirmed via `&sort=relevance` — without that param the query is silently
+  ignored and generic retail results come back instead).
+- **SpaceX** — a fully-rendered `spacex.com/careers/jobs/` page contains a literal
+  `href="https://boards.greenhouse.io/spacex/jobs/..."` link — a real Greenhouse board,
+  confirmed via the actual API (board_token=spacex, 2537 real postings with deep links). This is
+  strictly better than the Selenium fallback and was verified and added as GREENHOUSE, not
+  Selenium. The original miss was likely an earlier check that didn't wait long enough for the
+  Angular app to finish rendering the job list before scanning for ATS references.
+
+### L'Oréal — DSL limitation, not a missing ATS
+
+`careers.loreal.com/en_US/jobs/SearchJobs` renders a real, structured job list (`data-total`
+shows 999+ open roles) with no third-party ATS — a Selenium fallback candidate in principle. But
+its search form (an enterprise "TalentCommunity"-style widget, `tc_form*` CSS classes) ignores a
+`?keywords=` query string entirely (confirmed: identical top result with and without it) and
+requires actually typing into an autocomplete field and submitting — this project's DSL supports
+only `CSS`/`CLICK`/`FILTER`/`UNDETECTED` actions, no text-input action, so it can't drive that
+interaction. The unfiltered default page-1 listing is generic retail/marketing roles, so scraping
+it as-is without a way to filter or reduce it would return effectively no ChemE-relevant signal.
+Would need a new DSL action type (e.g. `TYPE:selector:text`) to be worth revisiting.
+
+### Estée Lauder — Cloudflare bot challenge
+
+`elcompanies.com/en/careers-and-culture/job-search` returns a Cloudflare "Just a moment..."
+interstitial (28KB) even via headless Selenium — same class of block as Tesla below.
+
+### Tesla — confirmed unreachable via headless Selenium
+
+Re-attempted with `undetected_chromedriver` (pinned to the installed Chrome's major version to
+fix an unrelated driver/browser version mismatch) — Akamai still returns an explicit
+"Access Denied" page even to the undetected driver in headless mode. A real, non-headless browser
+session might get further, but that requires an interactive display this environment doesn't
+have (confirmed: a non-headless attempt here couldn't even open a usable window). Left
+unverified; would need a different environment (or a residential-proxy/interactive service) to
+revisit.
 
 ## Adjacent-industry expansion batch — 13 of 80 verified
 

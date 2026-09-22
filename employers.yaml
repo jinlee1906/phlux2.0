@@ -64,6 +64,15 @@
     board_token: andurilindustries
   hq_region: Costa Mesa, CA
   enabled: true
+- name: Apple
+  sector: SEMICONDUCTOR
+  ats: SELENIUM
+  careers_url: https://jobs.apple.com/en-us/search
+  ats_config:
+    urls: https://jobs.apple.com/en-us/search?search=process%20engineer&sort=relevance->https://jobs.apple.com/en-us/search?search=battery%20engineer&sort=relevance->https://jobs.apple.com/en-us/search?search=materials%20engineer&sort=relevance
+    instructions: "CSS:.job-title-link a"
+  hq_region: Cupertino, CA
+  enabled: true
 - name: Archer Aviation
   sector: AEROSPACE
   ats: GREENHOUSE
@@ -304,6 +313,16 @@
     company: ispace-inc
   hq_region: Tokyo, Japan
   enabled: true
+- name: Johnson & Johnson
+  sector: PHARMA_BIOTECH
+  ats: WORKDAY
+  careers_url: https://careers.jnj.com/
+  ats_config:
+    tenant: jj
+    wd_host: wd5
+    site: JJ
+  hq_region: New Brunswick, NJ
+  enabled: true
 - name: LG Energy Solution Arizona
   sector: ENERGY_STORAGE
   ats: GREENHOUSE
@@ -403,6 +422,14 @@
   ats_config:
     board_token: solidpower
   hq_region: Louisville, CO
+  enabled: true
+- name: SpaceX
+  sector: AEROSPACE
+  ats: GREENHOUSE
+  careers_url: https://www.spacex.com/careers/jobs/
+  ats_config:
+    board_token: spacex
+  hq_region: Hawthorne, CA
   enabled: true
 - name: Toyota Research Institute
   sector: ROBOTICS
