@@ -423,8 +423,18 @@ Natron Energy, ONE (Our Next Energy), Freyr Battery, EnPower, Lanxess.
 Same unresolved class as the earlier JS-rendered groups above (dynamic XHR job search, nothing
 static to find): A123 Systems, Aerojet Rocketdyne, Ambri, Amorepacific, Arkema, Ascend Elements,
 Ashland, Avient, BYD, Berkshire Grey, CATL, Clariant, Clarins, Corteva, Coty, Covariant,
-Covestro, Eastman Chemical, Ekso Bionics, Element Solutions, EnerSys, Evonik, Firefly Aerospace,
+Eastman Chemical, Ekso Bionics, Element Solutions, EnerSys, Evonik, Firefly Aerospace,
 Formlabs, Impulse Space, Kenvue, L3Harris, LG Chem, Li-Cycle, Maxeon Solar, NextEra Energy,
 Panasonic Energy of North America, Physical Intelligence, Puig, Qcells, RIOS Intelligent
 Machines, Revlon, SK On, Samsung SDI, Siemens Energy, SolarEdge, Solvay, Stoke Space, Symrise,
 T. Hasegawa, Takasago, Textron, Ursa Major, Vast, Vestas, Wacker Chemie.
+
+### Correction: Covestro was actually verifiable (moved to employers.yaml)
+
+An independent re-check found what the bulk pass above missed: `covestro.com/en/career`'s
+static HTML contains a literal `covestro.wd3.myworkdayjobs.com/cov_external` link, confirmed via
+a real fetch returning 179 postings (e.g. "Mechanical Maintenance Technician," Baytown, TX — a
+real Covestro plant site). Added to `employers.yaml` as WORKDAY/tenant=covestro/wd_host=wd3/
+site=cov_external. Left as a note here rather than silently deleted, since the original miss is
+worth knowing about: a single bulk verification pass can miss real evidence that a second,
+independent pass catches — the same lesson as this project's live-testing-before-shipping habit.

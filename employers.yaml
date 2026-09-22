@@ -180,6 +180,16 @@
     site: External
   hq_region: null
   enabled: true
+- name: Covestro
+  sector: SPECIALTY_CHEM
+  ats: WORKDAY
+  careers_url: https://www.covestro.com/en/career
+  ats_config:
+    tenant: covestro
+    wd_host: wd3
+    site: cov_external
+  hq_region: Leverkusen, Germany
+  enabled: true
 - name: Dow
   sector: SPECIALTY_CHEM
   ats: WORKDAY
