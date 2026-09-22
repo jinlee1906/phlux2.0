@@ -18,6 +18,7 @@ from typing import Dict, List
 from .adapters import Adapter
 from .adapters.greenhouse import GreenhouseAdapter
 from .adapters.lever import LeverAdapter
+from .adapters.selenium_adapter import SeleniumAdapter
 from .adapters.workday import WorkdayAdapter
 from .classify import classify, matches_target_country
 from .config import (
@@ -40,6 +41,7 @@ _ADAPTERS: Dict[ATS, Adapter] = {
     ATS.GREENHOUSE: GreenhouseAdapter(),
     ATS.WORKDAY: WorkdayAdapter(),
     ATS.LEVER: LeverAdapter(),
+    ATS.SELENIUM: SeleniumAdapter(),
 }
 
 
