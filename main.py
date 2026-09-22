@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import random
 import smtplib
 from email.message import EmailMessage
 from typing import Dict, List
@@ -26,6 +27,35 @@ logger = logging.getLogger(__name__)
 
 _MAX_DIGEST_POSTINGS = 40
 
+# One is picked at random per send — every {n} still carries the real count
+# and {s} the correct singular/plural suffix, so it's silly, not misleading.
+_SUBJECT_TEMPLATES = [
+    "🍌 Your minions have found {n} new job{s}",
+    "🕵️ {n} job{s} just surfaced from the depths",
+    "🎯 {n} fresh target{s} acquired",
+    "🚨 {n} new posting{s} spotted in the wild",
+    "🧪 {n} new experiment{s}... I mean job{s}",
+    "🛰️ Incoming transmission: {n} new job{s}",
+    "🐿️ Your squirrel scouts found {n} new job{s}",
+    "🔥 {n} hot new job{s} just dropped",
+    "🎉 {n} new job{s} to obsess over",
+    "🧫 {n} job{s} cultured fresh this morning",
+]
+
+# A different accent color each send, applied to headers/links/rule in the
+# HTML digest — purely cosmetic, picked from a curated palette so it stays
+# readable on a white background (not a random RGB roll).
+_ACCENT_COLORS = [
+    "#2563eb",  # blue
+    "#dc2626",  # red
+    "#16a34a",  # green
+    "#9333ea",  # purple
+    "#ea580c",  # orange
+    "#0d9488",  # teal
+    "#db2777",  # pink
+    "#ca8a04",  # gold
+]
+
 
 def _group_by_sector(postings: List[Posting]) -> Dict[str, List[Posting]]:
     """Group *postings* by sector, each group sorted by score descending."""
@@ -37,26 +67,34 @@ def _group_by_sector(postings: List[Posting]) -> Dict[str, List[Posting]]:
     return by_sector
 
 
-def format_digest_html(postings: List[Posting]) -> str:
-    """Build the HTML digest body: grouped by sector, capped, deep-linked."""
+def format_digest_html(postings: List[Posting], accent_color: str = "#111827") -> str:
+    """Build the HTML digest body: grouped by sector, capped, deep-linked.
+
+    *accent_color* tints the headers/rule/links — send_digest() picks a
+    different one at random each send, purely for fun.
+    """
     if not postings:
         return '<p style="font-family: monospace;">No new postings today.</p>'
 
     total = len(postings)
     by_sector = _group_by_sector(postings[:_MAX_DIGEST_POSTINGS])
 
-    lines = [f'<h1 style="font-family: monospace;">{total} New Posting{"s" if total != 1 else ""}</h1>']
-    lines.append('<hr style="margin-top: 20px; margin-bottom: 20px;">')
+    lines = [
+        f'<h1 style="font-family: monospace; color: {accent_color};">'
+        f'{total} New Posting{"s" if total != 1 else ""}</h1>'
+    ]
+    lines.append(f'<hr style="margin-top: 20px; margin-bottom: 20px; border-color: {accent_color};">')
 
     for sector in sorted(by_sector):
-        lines.append(f'<h2 style="font-family: monospace;">{sector}</h2>')
+        lines.append(f'<h2 style="font-family: monospace; color: {accent_color};">{sector}</h2>')
         lines.append("<ul style='margin-top: 5px;'>")
         for posting in by_sector[sector]:
             tags = ", ".join(posting.tags) if posting.tags else "—"
             location = posting.location or "Location unknown"
             lines.append(
                 "<li style='margin-bottom: 8px; font-family: monospace;'>"
-                f'<a href="{posting.url}" target="_blank">{posting.title}</a> — {posting.employer}'
+                f'<a href="{posting.url}" target="_blank" style="color: {accent_color};">{posting.title}</a>'
+                f" — {posting.employer}"
                 f"<br>{location} · score {posting.score:.1f} · {tags}</li>"
             )
         lines.append("</ul>")
@@ -93,15 +131,22 @@ def format_digest_text(postings: List[Posting]) -> str:
 
 
 def send_digest(postings: List[Posting]) -> None:
-    """Send the digest email via Gmail SMTP — single recipient, no BCC list."""
+    """Send the digest email via Gmail SMTP — single recipient, no BCC list.
+
+    The subject line and HTML accent color are both picked at random each
+    send (see _SUBJECT_TEMPLATES / _ACCENT_COLORS) — cosmetic only, the
+    actual count and content are never affected.
+    """
     email_cfg = load_email_config()
     msg = EmailMessage()
-    msg["Subject"] = f"🍌 Your minions have found {len(postings)} new job{'s' if len(postings) != 1 else ''}"
+    subject_template = random.choice(_SUBJECT_TEMPLATES)
+    msg["Subject"] = subject_template.format(n=len(postings), s="s" if len(postings) != 1 else "")
     msg["From"] = email_cfg["from"]
     msg["To"] = email_cfg["to"]
 
+    accent_color = random.choice(_ACCENT_COLORS)
     msg.set_content("This email contains HTML. Please view it in an HTML-compatible client.")
-    msg.add_alternative(format_digest_html(postings), subtype="html")
+    msg.add_alternative(format_digest_html(postings, accent_color=accent_color), subtype="html")
 
     password = os.environ["GMAIL_APP_PASSWORD"]
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:

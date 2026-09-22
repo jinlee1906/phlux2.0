@@ -67,6 +67,16 @@ class TestFormatDigestHtml:
         html = format_digest_html(postings)
         assert "more" not in html
 
+    def test_accent_color_is_applied(self):
+        html = format_digest_html([_make_posting()], accent_color="#123456")
+        assert "#123456" in html
+
+    def test_accent_color_has_a_default(self):
+        # Callers that don't care about color (e.g. existing tests above)
+        # still get valid, non-empty styling.
+        html = format_digest_html([_make_posting()])
+        assert "color:" in html
+
 
 class TestFormatDigestText:
     def test_empty_list(self):
@@ -128,6 +138,35 @@ class TestSendDigest:
              patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
             send_digest([_make_posting(), _make_posting(title="Other")])
         assert "2" in sent_msgs[0]["Subject"]
+
+    def test_subject_is_always_one_of_the_known_templates(self):
+        from main import _SUBJECT_TEMPLATES
+
+        sent_msgs = []
+        smtp_cls, smtp_instance = _make_smtp_mock()
+        smtp_instance.send_message.side_effect = lambda msg: sent_msgs.append(msg)
+        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
+             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
+            for _ in range(20):  # random.choice — sample enough to be confident
+                send_digest([_make_posting()])
+        possible = {t.format(n=1, s="") for t in _SUBJECT_TEMPLATES}
+        assert all(msg["Subject"] in possible for msg in sent_msgs)
+
+    def test_html_accent_color_varies_across_sends(self):
+        from main import _ACCENT_COLORS
+
+        seen_colors = set()
+        smtp_cls, smtp_instance = _make_smtp_mock()
+        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
+             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
+            for _ in range(40):  # random.choice over 8 colors — very unlikely to miss variety
+                send_digest([_make_posting()])
+                html_part = smtp_instance.send_message.call_args[0][0].get_body(preferencelist=("html",))
+                for color in _ACCENT_COLORS:
+                    if color in html_part.get_content():
+                        seen_colors.add(color)
+                        break
+        assert len(seen_colors) > 1, "accent color never varied across 40 sends"
 
 
 class TestMain:
