@@ -156,9 +156,12 @@ class TestCountPostings:
             count = count_postings(detection)
         assert count == 1
 
-    def test_lever_returns_none_no_adapter_yet(self):
+    def test_lever_uses_lever_adapter(self):
         detection = Detection(ATS.LEVER, {"company": "acme"}, "evidence")
-        assert count_postings(detection) is None
+        with patch("catalyst.detect.LeverAdapter") as mock_cls:
+            mock_cls.return_value.fetch.return_value = [object(), object()]
+            count = count_postings(detection)
+        assert count == 2
 
     def test_successfactors_returns_none_no_adapter_yet(self):
         detection = Detection(ATS.SUCCESSFACTORS, {"company": "acme"}, "evidence")

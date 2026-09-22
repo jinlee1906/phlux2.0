@@ -17,6 +17,7 @@ import requests
 from selenium.common.exceptions import TimeoutException, WebDriverException
 
 from .adapters.greenhouse import GreenhouseAdapter
+from .adapters.lever import LeverAdapter
 from .adapters.workday import WorkdayAdapter
 from .models import ATS, Employer, Sector
 
@@ -121,9 +122,9 @@ def fetch_rendered_page(url: str, wait_seconds: float = 4.0) -> Optional[str]:
 def detect_ats(html: str) -> Optional[Detection]:
     """Find a literal ATS reference in *html*. Returns None if none is found.
 
-    Checks the two ATSes with working adapters first (Greenhouse, Workday),
-    then Lever/SuccessFactors/Ashby, which are detected but may not be fully
-    verifiable without an adapter — see count_postings().
+    Checks the three ATSes with working adapters first (Greenhouse, Workday,
+    Lever), then SuccessFactors/Ashby, which are detected but not verifiable
+    without an adapter — see count_postings().
     """
     match = (
         _GREENHOUSE_API_RE.search(html)
@@ -179,4 +180,6 @@ def count_postings(detection: Detection, name: str = "?", sector: Sector = Secto
         return len(GreenhouseAdapter().fetch(probe))
     if detection.ats is ATS.WORKDAY:
         return len(WorkdayAdapter().fetch(probe))
+    if detection.ats is ATS.LEVER:
+        return len(LeverAdapter().fetch(probe))
     return None
