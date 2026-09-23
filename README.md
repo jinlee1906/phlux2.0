@@ -113,13 +113,6 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>3.0</td>
 </tr>
   <tr>
-  <td>Varda Space Industries</td>
-  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
-  <td>AEROSPACE</td>
-  <td>El Segundo, California, United States</td>
-  <td>3.0</td>
-</tr>
-  <tr>
   <td>Merck</td>
   <td><a href="https://msd.wd5.myworkdayjobs.com/en-US/SearchJobs/job/USA---Delaware---Millsboro-Intervet/XMLNAME-2027-Future-Talent-Program----Bioprocess-Technology-Solutions--BTS----Intern_R412781">2027 Future Talent Program -  Bioprocess Technology Solutions (BTS) - Intern</a></td>
   <td>PHARMA_BIOTECH</td>
@@ -159,6 +152,13 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://msd.wd5.myworkdayjobs.com/en-US/SearchJobs/job/USA---Pennsylvania---West-Point/XMLNAME-2027-Future-Talent-Program---Bioprocess-Clinical-Manufacturing---Technology-Co-Op_R413123">2027 Future Talent Program - Bioprocess Clinical Manufacturing & Technology Co-Op</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>USA - Pennsylvania - West Point</td>
+  <td>3.0</td>
+</tr>
+  <tr>
+  <td>Varda Space Industries</td>
+  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
+  <td>AEROSPACE</td>
+  <td>El Segundo, California, United States</td>
   <td>3.0</td>
 </tr>
 
