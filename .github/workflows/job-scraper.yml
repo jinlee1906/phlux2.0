@@ -56,14 +56,32 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add storage.json README.md data/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
+          # storage.json/README.md/data/ are fully regenerated from a fresh
+          # live fetch every run, not hand-edited -- there's nothing to
+          # line-merge between two runs' versions of them. Re-basing this
+          # onto whatever landed on main while this run's ~30min scrape was
+          # in flight caused a real, unresolvable conflict (a race the
+          # concurrency group above narrows but can't fully close, since a
+          # commit can land in the gap between this job's own checkout and
+          # another run's push). Fix: re-sync to main's current tip right
+          # before committing, then re-commit *this run's* generated files
+          # on top of it -- last-writer-wins for generated data, no merge.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --soft origin/main
+            git add storage.json README.md data/
+            if git diff --cached --quiet; then
+              echo "No changes to commit"
+              break
+            fi
             git commit -m "Update storage.json and readme [bot]"
-            git pull --rebase origin main
-            git push
-          fi
+            if git push origin HEAD:main; then
+              break
+            fi
+            echo "Push race on attempt $attempt, retrying..."
+            git reset --soft HEAD^
+            sleep 5
+          done
 
   retry:
     needs: run
@@ -103,11 +121,29 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add storage.json README.md data/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
+          # storage.json/README.md/data/ are fully regenerated from a fresh
+          # live fetch every run, not hand-edited -- there's nothing to
+          # line-merge between two runs' versions of them. Re-basing this
+          # onto whatever landed on main while this run's ~30min scrape was
+          # in flight caused a real, unresolvable conflict (a race the
+          # concurrency group above narrows but can't fully close, since a
+          # commit can land in the gap between this job's own checkout and
+          # another run's push). Fix: re-sync to main's current tip right
+          # before committing, then re-commit *this run's* generated files
+          # on top of it -- last-writer-wins for generated data, no merge.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --soft origin/main
+            git add storage.json README.md data/
+            if git diff --cached --quiet; then
+              echo "No changes to commit"
+              break
+            fi
             git commit -m "Update storage.json and readme [bot]"
-            git pull --rebase origin main
-            git push
-          fi
+            if git push origin HEAD:main; then
+              break
+            fi
+            echo "Push race on attempt $attempt, retrying..."
+            git reset --soft HEAD^
+            sleep 5
+          done
