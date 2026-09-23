@@ -249,14 +249,6 @@
     site: EoS
   hq_region: Edison, NJ
   enabled: true
-- name: Faraday Future
-  sector: ENERGY_STORAGE
-  ats: GREENHOUSE
-  careers_url: https://ff.com/us/careers/
-  ats_config:
-    board_token: faradayfuture
-  hq_region: Los Angeles, CA
-  enabled: true
 - name: Figure AI
   sector: ROBOTICS
   ats: GREENHOUSE
