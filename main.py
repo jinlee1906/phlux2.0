@@ -6,6 +6,7 @@ sending mail or writing storage.json — safe to run repeatedly while testing.
 from __future__ import annotations
 
 import argparse
+import colorsys
 import logging
 import os
 import random
@@ -57,6 +58,25 @@ _ACCENT_COLORS = [
 ]
 
 
+def _complementary_background(accent_hex: str) -> str:
+    """Return a pale background tint whose hue is complementary (180°
+    opposite) to *accent_hex* on the color wheel.
+
+    The complement is computed at full saturation/lightness first (so the
+    hue relationship is a true complementary pair), then lightened way up
+    and desaturated down for background use — a raw, fully-saturated
+    complementary color makes a fine accent but an unreadable full-page
+    background behind default-black body text.
+    """
+    accent_hex = accent_hex.lstrip("#")
+    r, g, b = (int(accent_hex[i : i + 2], 16) / 255 for i in (0, 2, 4))
+    hue, _lightness, _saturation = colorsys.rgb_to_hls(r, g, b)
+
+    complementary_hue = (hue + 0.5) % 1.0
+    bg_r, bg_g, bg_b = colorsys.hls_to_rgb(complementary_hue, 0.93, 0.55)
+    return "#{:02x}{:02x}{:02x}".format(round(bg_r * 255), round(bg_g * 255), round(bg_b * 255))
+
+
 def _group_by_sector(postings: List[Posting]) -> Dict[str, List[Posting]]:
     """Group *postings* by sector, each group sorted by score descending."""
     by_sector: Dict[str, List[Posting]] = {}
@@ -67,22 +87,32 @@ def _group_by_sector(postings: List[Posting]) -> Dict[str, List[Posting]]:
     return by_sector
 
 
-def format_digest_html(postings: List[Posting], accent_color: str = "#111827") -> str:
+def format_digest_html(
+    postings: List[Posting],
+    accent_color: str = "#111827",
+    background_color: str = "#ffffff",
+) -> str:
     """Build the HTML digest body: grouped by sector, capped, deep-linked.
 
-    *accent_color* tints the headers/rule/links — send_digest() picks a
-    different one at random each send, purely for fun.
+    *accent_color* tints the headers/rule/links; *background_color* fills
+    the page behind everything — send_digest() picks a random accent color
+    each send and derives background_color as its complement, purely for
+    fun.
     """
     if not postings:
-        return '<p style="font-family: monospace;">No new postings today.</p>'
+        return (
+            f'<div style="background-color: {background_color}; padding: 24px;">'
+            '<p style="font-family: monospace;">No new postings today.</p></div>'
+        )
 
     total = len(postings)
     by_sector = _group_by_sector(postings[:_MAX_DIGEST_POSTINGS])
 
-    lines = [
+    lines = [f'<div style="background-color: {background_color}; padding: 24px;">']
+    lines.append(
         f'<h1 style="font-family: monospace; color: {accent_color};">'
         f'{total} New Posting{"s" if total != 1 else ""}</h1>'
-    ]
+    )
     lines.append(f'<hr style="margin-top: 20px; margin-bottom: 20px; border-color: {accent_color};">')
 
     for sector in sorted(by_sector):
@@ -102,6 +132,7 @@ def format_digest_html(postings: List[Posting], accent_color: str = "#111827") -
     if total > _MAX_DIGEST_POSTINGS:
         lines.append(f'<p style="font-family: monospace;">+{total - _MAX_DIGEST_POSTINGS} more</p>')
 
+    lines.append("</div>")
     return "\n".join(lines)
 
 
@@ -134,8 +165,9 @@ def send_digest(postings: List[Posting]) -> None:
     """Send the digest email via Gmail SMTP — single recipient, no BCC list.
 
     The subject line and HTML accent color are both picked at random each
-    send (see _SUBJECT_TEMPLATES / _ACCENT_COLORS) — cosmetic only, the
-    actual count and content are never affected.
+    send (see _SUBJECT_TEMPLATES / _ACCENT_COLORS), and the background is
+    derived as the accent color's complement — cosmetic only, the actual
+    count and content are never affected.
     """
     email_cfg = load_email_config()
     msg = EmailMessage()
@@ -145,8 +177,12 @@ def send_digest(postings: List[Posting]) -> None:
     msg["To"] = email_cfg["to"]
 
     accent_color = random.choice(_ACCENT_COLORS)
+    background_color = _complementary_background(accent_color)
     msg.set_content("This email contains HTML. Please view it in an HTML-compatible client.")
-    msg.add_alternative(format_digest_html(postings, accent_color=accent_color), subtype="html")
+    msg.add_alternative(
+        format_digest_html(postings, accent_color=accent_color, background_color=background_color),
+        subtype="html",
+    )
 
     password = os.environ["GMAIL_APP_PASSWORD"]
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:

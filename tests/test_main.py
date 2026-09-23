@@ -1,9 +1,12 @@
 """Tests for main.py — digest formatting, sending, and the dry-run mode."""
+import colorsys
 import os
 from datetime import date
 from unittest.mock import MagicMock, patch
 
-from main import format_digest_html, format_digest_text, main, send_digest
+import pytest
+
+from main import _complementary_background, format_digest_html, format_digest_text, main, send_digest
 from catalyst.models import ATS, Level, Posting, Sector
 from catalyst.pipeline import PipelineResult
 
@@ -76,6 +79,43 @@ class TestFormatDigestHtml:
         # still get valid, non-empty styling.
         html = format_digest_html([_make_posting()])
         assert "color:" in html
+
+    def test_background_color_is_applied(self):
+        html = format_digest_html([_make_posting()], background_color="#abcdef")
+        assert "background-color: #abcdef" in html
+
+    def test_background_color_applied_even_when_empty(self):
+        html = format_digest_html([], background_color="#abcdef")
+        assert "background-color: #abcdef" in html
+
+
+class TestComplementaryBackground:
+    def _hue(self, hex_color):
+        hex_color = hex_color.lstrip("#")
+        r, g, b = (int(hex_color[i : i + 2], 16) / 255 for i in (0, 2, 4))
+        hue, _, _ = colorsys.rgb_to_hls(r, g, b)
+        return hue
+
+    def test_hue_is_opposite_the_input(self):
+        for accent in ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0d9488", "#db2777", "#ca8a04"]:
+            bg = _complementary_background(accent)
+            hue_diff = abs(self._hue(accent) - self._hue(bg))
+            # hue is circular (0-1) — 180 degrees apart is a 0.5 difference
+            # either direction around the wheel
+            assert min(hue_diff, 1 - hue_diff) == pytest.approx(0.5, abs=0.02)
+
+    def test_background_is_pale_enough_for_black_text(self):
+        for accent in ["#2563eb", "#dc2626", "#16a34a", "#9333ea"]:
+            bg = _complementary_background(accent).lstrip("#")
+            r, g, b = (int(bg[i : i + 2], 16) / 255 for i in (0, 2, 4))
+            _, lightness, _ = colorsys.rgb_to_hls(r, g, b)
+            assert lightness > 0.8, f"background for {accent} too dark for readable body text"
+
+    def test_returns_valid_hex_format(self):
+        bg = _complementary_background("#2563eb")
+        assert bg.startswith("#")
+        assert len(bg) == 7
+        int(bg[1:], 16)  # raises ValueError if not valid hex
 
 
 class TestFormatDigestText:
@@ -167,6 +207,17 @@ class TestSendDigest:
                         seen_colors.add(color)
                         break
         assert len(seen_colors) > 1, "accent color never varied across 40 sends"
+
+    def test_html_background_is_the_accent_colors_complement(self):
+        smtp_cls, smtp_instance = _make_smtp_mock()
+        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
+             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}), \
+             patch("main.random.choice", return_value="#2563eb"):
+            send_digest([_make_posting()])
+        html_part = smtp_instance.send_message.call_args[0][0].get_body(preferencelist=("html",))
+        content = html_part.get_content()
+        expected_bg = _complementary_background("#2563eb")
+        assert f"background-color: {expected_bg}" in content
 
 
 class TestMain:
