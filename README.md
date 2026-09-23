@@ -6,7 +6,7 @@ A personal job tracker for chemical engineering roles — process engineering, m
 ---
 
 ## 🔍 Top Postings
-*Showing the 22 highest-scoring of 22 active postings — full history in `data/postings.ndjson`*
+*Showing the 17 highest-scoring of 17 active postings — full history in `data/postings.ndjson`*
 
 
 <table>
@@ -40,27 +40,6 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://boards.greenhouse.io/andurilindustries/jobs/5236589007?gh_jid=5236589007">Winter 2027 Manufacturing Engineer Co-op</a></td>
   <td>ROBOTICS</td>
   <td>Lexington, Massachusetts, United States; Quincy, Massachusetts, United States</td>
-  <td>3.0</td>
-</tr>
-  <tr>
-  <td>Amgen</td>
-  <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---Massachusetts---Cambridge/Undergrad-Co-op---Drug-Substance-Technologies-Synthetics_R-255701">Undergrad Co-op – Drug Substance Technologies Synthetics</a></td>
-  <td>PHARMA_BIOTECH</td>
-  <td>US - Massachusetts - Cambridge</td>
-  <td>3.0</td>
-</tr>
-  <tr>
-  <td>Amgen</td>
-  <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Grad-Intern---Operations---Process-Development--Summer-2027-_R-254519">Grad Intern - Operations – Process Development (Summer 2027)</a></td>
-  <td>PHARMA_BIOTECH</td>
-  <td>US - California - Thousand Oaks</td>
-  <td>3.0</td>
-</tr>
-  <tr>
-  <td>Amgen</td>
-  <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Undergrad-Intern---Operations---Process-Development--Summer-2027-_R-254516">Undergrad Intern - Operations – Process Development (Summer 2027)</a></td>
-  <td>PHARMA_BIOTECH</td>
-  <td>US - California - Thousand Oaks</td>
   <td>3.0</td>
 </tr>
   <tr>
@@ -160,20 +139,6 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>AEROSPACE</td>
   <td>El Segundo, California, United States</td>
   <td>3.0</td>
-</tr>
-  <tr>
-  <td>GE Vernova</td>
-  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Longmont/Lean-and-Process-Optimization-Program-Management-internship---2027_R5051990-2">Lean and Process Optimization Program Management internship – 2027</a></td>
-  <td>ENERGY_STORAGE</td>
-  <td>Longmont</td>
-  <td>1.0</td>
-</tr>
-  <tr>
-  <td>GE Vernova</td>
-  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Phu-My/Lean---EHS-Internship_R5050817-3">Lean & EHS Internship</a></td>
-  <td>ENERGY_STORAGE</td>
-  <td>Phu My</td>
-  <td>1.0</td>
 </tr>
 
   </tbody>
