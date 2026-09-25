@@ -85,13 +85,6 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>2.9</td>
 </tr>
   <tr>
-  <td>GE Vernova</td>
-  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Longmont/GE-Vernova-DCS-BD-internship---2027_R5050721-3">GE Vernova DCS BD internship – 2027</a></td>
-  <td>ENERGY_STORAGE</td>
-  <td>Longmont</td>
-  <td>2.9</td>
-</tr>
-  <tr>
   <td>IFF</td>
   <td><a href="https://iff.wd5.myworkdayjobs.com/en-US/IFF_Careers/job/Pryor-OK-USA/Manufacturing-Engineer-Co-Op_R15636-1">Manufacturing Engineer Co-Op</a></td>
   <td>COSMETICS_FRAGRANCE</td>
@@ -110,6 +103,13 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://jj.wd5.myworkdayjobs.com/en-US/JJ/job/Jacksonville-Florida-United-States-of-America/Process-Engineer-Summer-Intern_R-099289">Process Engineer Summer Intern</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>Jacksonville, Florida, United States of America</td>
+  <td>2.9</td>
+</tr>
+  <tr>
+  <td>Varda Space Industries</td>
+  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
+  <td>AEROSPACE</td>
+  <td>El Segundo, California, United States</td>
   <td>2.9</td>
 </tr>
   <tr>
@@ -155,10 +155,10 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>2.9</td>
 </tr>
   <tr>
-  <td>Varda Space Industries</td>
-  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
-  <td>AEROSPACE</td>
-  <td>El Segundo, California, United States</td>
+  <td>GE Vernova</td>
+  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Longmont/GE-Vernova-DCS-BD-internship---2027_R5050721-3">GE Vernova DCS BD internship – 2027</a></td>
+  <td>ENERGY_STORAGE</td>
+  <td>Longmont</td>
   <td>2.9</td>
 </tr>
 
