@@ -7,8 +7,14 @@ on:
   # Enabled 2026-09-22 at the user's explicit request (PROJECT_BRIEF.md
   # Phase 9 cadence: once each weekday morning, not the ~15-runs/day
   # schedule this repo inherited from the upstream project).
+  #
+  # Minute deliberately NOT :00 -- GitHub's own docs warn that on-the-hour
+  # schedules queue behind everyone else's on-the-hour schedules and can be
+  # delayed significantly. Confirmed here: both 2026-09-23 and 2026-09-24's
+  # runs (cron was '0 13 * * 1-5') fired ~4h45m late (17:4x UTC instead of
+  # 13:00 UTC) two days running -- a consistent pattern, not one-off load.
   schedule:
-    - cron: '0 13 * * 1-5'
+    - cron: '17 13 * * 1-5'
   workflow_dispatch:
 
 concurrency:
