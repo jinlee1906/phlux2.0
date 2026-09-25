@@ -57,31 +57,6 @@ _ACCENT_COLORS = [
     "#ca8a04",  # gold
 ]
 
-# The user wants a "nothing new" email every day too, not silence — these
-# make that email something worth opening instead of a dull null-result
-# notice. One subject, one big-emoji "graphic", and one message line are
-# each picked independently at random.
-_EMPTY_SUBJECT_TEMPLATES = [
-    "😴 Nothing new today, boss",
-    "🦗 Crickets... zero new jobs today",
-    "🕳️ Stared into the job void today. It stared back.",
-    "🌵 Tumbleweeds rolling through job land",
-    "😅 Your minions came back empty-handed",
-    "🧊 Ice cold out there — nothing new today",
-    "🎣 Went fishing for jobs, caught nothing",
-    "🫠 A whole lot of nothing today",
-]
-
-_EMPTY_GRAPHICS = ["🦗🦗🦗", "🌵💨🌵", "🤷", "😴💤💤", "🕸️👻🕸️", "🎣🐟❌", "🫠", "🛸❓"]
-
-_EMPTY_MESSAGES = [
-    "Nothing new found today. The chemical engineering job market is taking a nap.",
-    "Zero new postings. Even the minions are surprised.",
-    "The scrape ran, the postings were checked, and... nothing. Try again tomorrow.",
-    "No fresh jobs today. Go touch some grass (or a reactor).",
-    "Quiet day out there. Nothing new to report.",
-]
-
 
 def _complementary_background(accent_hex: str) -> str:
     """Return a pale background tint whose hue is complementary (180°
@@ -125,14 +100,9 @@ def format_digest_html(
     fun.
     """
     if not postings:
-        graphic = random.choice(_EMPTY_GRAPHICS)
-        message = random.choice(_EMPTY_MESSAGES)
         return (
-            f'<div style="background-color: {background_color}; padding: 24px; text-align: center;">'
-            f'<div style="font-size: 64px; margin-bottom: 16px;">{graphic}</div>'
-            f'<h1 style="font-family: monospace; color: {accent_color};">No New Postings Today</h1>'
-            f'<p style="font-family: monospace;">{message}</p>'
-            "</div>"
+            f'<div style="background-color: {background_color}; padding: 24px;">'
+            '<p style="font-family: monospace;">No new postings today.</p></div>'
         )
 
     total = len(postings)
@@ -193,8 +163,6 @@ def format_digest_text(postings: List[Posting]) -> str:
 
 def send_digest(postings: List[Posting]) -> None:
     """Send the digest email via Gmail SMTP — single recipient, no BCC list.
-    Sends every day, even with zero new postings — see _EMPTY_SUBJECT_TEMPLATES
-    / _EMPTY_GRAPHICS / _EMPTY_MESSAGES for that case.
 
     The subject line and HTML accent color are both picked at random each
     send (see _SUBJECT_TEMPLATES / _ACCENT_COLORS), and the background is
@@ -203,11 +171,8 @@ def send_digest(postings: List[Posting]) -> None:
     """
     email_cfg = load_email_config()
     msg = EmailMessage()
-    if postings:
-        subject_template = random.choice(_SUBJECT_TEMPLATES)
-        msg["Subject"] = subject_template.format(n=len(postings), s="s" if len(postings) != 1 else "")
-    else:
-        msg["Subject"] = random.choice(_EMPTY_SUBJECT_TEMPLATES)
+    subject_template = random.choice(_SUBJECT_TEMPLATES)
+    msg["Subject"] = subject_template.format(n=len(postings), s="s" if len(postings) != 1 else "")
     msg["From"] = email_cfg["from"]
     msg["To"] = email_cfg["to"]
 
@@ -226,11 +191,7 @@ def send_digest(postings: List[Posting]) -> None:
 
 
 def main(dry_run: bool = False) -> None:
-    """Run the full fetch -> classify -> filter -> alert pipeline.
-
-    Sends a digest every live run, even with zero new postings — the user
-    wants a daily email regardless, not silence on quiet days.
-    """
+    """Run the full fetch -> classify -> filter -> alert pipeline."""
     result = run(persist=not dry_run)
 
     if dry_run:
@@ -238,8 +199,11 @@ def main(dry_run: bool = False) -> None:
         print(f"\n({len(result.active)} active posting(s) total pass the score/level filter)")
         return
 
-    send_digest(result.new)
-    print(f"Sent digest: {len(result.new)} new posting(s).")
+    if result.new:
+        send_digest(result.new)
+        print(f"Sent digest: {len(result.new)} new posting(s).")
+    else:
+        print("Scrape complete: no new postings found.")
 
 
 if __name__ == "__main__":

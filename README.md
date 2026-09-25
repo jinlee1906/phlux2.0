@@ -33,21 +33,21 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---Massachusetts---Cambridge/Undergrad-Co-op---Drug-Substance-Technologies-Synthetics_R-255701">Undergrad Co-op – Drug Substance Technologies Synthetics</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>US - Massachusetts - Cambridge</td>
-  <td>3.0</td>
+  <td>2.9</td>
 </tr>
   <tr>
   <td>Amgen</td>
   <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Grad-Intern---Operations---Process-Development--Summer-2027-_R-254519">Grad Intern - Operations – Process Development (Summer 2027)</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>US - California - Thousand Oaks</td>
-  <td>3.0</td>
+  <td>2.9</td>
 </tr>
   <tr>
   <td>Amgen</td>
   <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Undergrad-Intern---Operations---Process-Development--Summer-2027-_R-254516">Undergrad Intern - Operations – Process Development (Summer 2027)</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>US - California - Thousand Oaks</td>
-  <td>3.0</td>
+  <td>2.9</td>
 </tr>
   <tr>
   <td>Anduril</td>
@@ -85,17 +85,17 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>2.9</td>
 </tr>
   <tr>
-  <td>IFF</td>
-  <td><a href="https://iff.wd5.myworkdayjobs.com/en-US/IFF_Careers/job/Pryor-OK-USA/Manufacturing-Engineer-Co-Op_R15636-1">Manufacturing Engineer Co-Op</a></td>
-  <td>COSMETICS_FRAGRANCE</td>
-  <td>Pryor, OK, USA</td>
-  <td>2.9</td>
-</tr>
-  <tr>
   <td>GE Vernova</td>
   <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Longmont/GE-Vernova-DCS-BD-internship---2027_R5050721-3">GE Vernova DCS BD internship – 2027</a></td>
   <td>ENERGY_STORAGE</td>
   <td>Longmont</td>
+  <td>2.9</td>
+</tr>
+  <tr>
+  <td>IFF</td>
+  <td><a href="https://iff.wd5.myworkdayjobs.com/en-US/IFF_Careers/job/Pryor-OK-USA/Manufacturing-Engineer-Co-Op_R15636-1">Manufacturing Engineer Co-Op</a></td>
+  <td>COSMETICS_FRAGRANCE</td>
+  <td>Pryor, OK, USA</td>
   <td>2.9</td>
 </tr>
   <tr>

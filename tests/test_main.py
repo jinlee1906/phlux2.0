@@ -31,7 +31,7 @@ def _make_posting(**overrides):
 
 class TestFormatDigestHtml:
     def test_empty_list_says_no_postings(self):
-        assert "No New Postings" in format_digest_html([])
+        assert "No new postings" in format_digest_html([])
 
     def test_contains_title_employer_location_score_tags(self):
         posting = _make_posting()
@@ -87,21 +87,6 @@ class TestFormatDigestHtml:
     def test_background_color_applied_even_when_empty(self):
         html = format_digest_html([], background_color="#abcdef")
         assert "background-color: #abcdef" in html
-
-    def test_empty_state_graphic_and_message_vary(self):
-        from main import _EMPTY_GRAPHICS, _EMPTY_MESSAGES
-
-        seen_graphics, seen_messages = set(), set()
-        for _ in range(60):  # random.choice over 8/5 options -- sample enough for confidence
-            html = format_digest_html([])
-            for g in _EMPTY_GRAPHICS:
-                if g in html:
-                    seen_graphics.add(g)
-            for m in _EMPTY_MESSAGES:
-                if m in html:
-                    seen_messages.add(m)
-        assert len(seen_graphics) > 1, "empty-state graphic never varied across 60 calls"
-        assert len(seen_messages) > 1, "empty-state message never varied across 60 calls"
 
 
 class TestComplementaryBackground:
@@ -207,25 +192,6 @@ class TestSendDigest:
         possible = {t.format(n=1, s="") for t in _SUBJECT_TEMPLATES}
         assert all(msg["Subject"] in possible for msg in sent_msgs)
 
-    def test_sends_even_with_zero_postings(self):
-        smtp_cls, smtp_instance = _make_smtp_mock()
-        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
-            send_digest([])
-        smtp_instance.send_message.assert_called_once()
-
-    def test_empty_send_uses_an_empty_subject_template(self):
-        from main import _EMPTY_SUBJECT_TEMPLATES
-
-        sent_msgs = []
-        smtp_cls, smtp_instance = _make_smtp_mock()
-        smtp_instance.send_message.side_effect = lambda msg: sent_msgs.append(msg)
-        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
-             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
-            for _ in range(20):
-                send_digest([])
-        assert all(msg["Subject"] in _EMPTY_SUBJECT_TEMPLATES for msg in sent_msgs)
-
     def test_html_accent_color_varies_across_sends(self):
         from main import _ACCENT_COLORS
 
@@ -278,10 +244,9 @@ class TestMain:
         mock_run.assert_called_once_with(persist=True)
         mock_send.assert_called_once_with(result.new)
 
-    def test_live_run_still_sends_when_no_new_postings(self, capsys):
-        # User wants a daily email even on quiet days, not silence.
+    def test_live_run_skips_send_when_no_new_postings(self, capsys):
         result = PipelineResult(new=[], active=[])
         with patch("main.run", return_value=result), \
              patch("main.send_digest") as mock_send:
             main(dry_run=False)
-        mock_send.assert_called_once_with([])
+        mock_send.assert_not_called()
