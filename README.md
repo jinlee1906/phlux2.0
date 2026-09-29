@@ -6,7 +6,7 @@ A personal job tracker for chemical engineering roles — process engineering, m
 ---
 
 ## 🔍 Top Postings
-*Showing the 20 highest-scoring of 20 active postings — full history in `data/postings.ndjson`*
+*Showing the 21 highest-scoring of 21 active postings — full history in `data/postings.ndjson`*
 
 
 <table>
@@ -33,21 +33,21 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---Massachusetts---Cambridge/Undergrad-Co-op---Drug-Substance-Technologies-Synthetics_R-255701">Undergrad Co-op – Drug Substance Technologies Synthetics</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>US - Massachusetts - Cambridge</td>
-  <td>2.8</td>
+  <td>2.7</td>
 </tr>
   <tr>
   <td>Amgen</td>
   <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Grad-Intern---Operations---Process-Development--Summer-2027-_R-254519">Grad Intern - Operations – Process Development (Summer 2027)</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>US - California - Thousand Oaks</td>
-  <td>2.8</td>
+  <td>2.7</td>
 </tr>
   <tr>
   <td>Amgen</td>
   <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Undergrad-Intern---Operations---Process-Development--Summer-2027-_R-254516">Undergrad Intern - Operations – Process Development (Summer 2027)</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>US - California - Thousand Oaks</td>
-  <td>2.8</td>
+  <td>2.7</td>
 </tr>
   <tr>
   <td>Anduril</td>
@@ -92,13 +92,6 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>2.7</td>
 </tr>
   <tr>
-  <td>GE Vernova</td>
-  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Longmont/GE-Vernova-DCS-BD-internship---2027_R5050721-3">GE Vernova DCS BD internship – 2027</a></td>
-  <td>ENERGY_STORAGE</td>
-  <td>Longmont</td>
-  <td>2.7</td>
-</tr>
-  <tr>
   <td>Johnson & Johnson</td>
   <td><a href="https://jj.wd5.myworkdayjobs.com/en-US/JJ/job/Jacksonville-Florida-United-States-of-America/Process-Engineer-Spring-Co-op_R-099278-1">Process Engineer Spring Co-op</a></td>
   <td>PHARMA_BIOTECH</td>
@@ -110,6 +103,20 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://jj.wd5.myworkdayjobs.com/en-US/JJ/job/Jacksonville-Florida-United-States-of-America/Process-Engineer-Summer-Intern_R-099289">Process Engineer Summer Intern</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>Jacksonville, Florida, United States of America</td>
+  <td>2.7</td>
+</tr>
+  <tr>
+  <td>GE Vernova</td>
+  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Longmont/GE-Vernova-DCS-BD-internship---2027_R5050721-3">GE Vernova DCS BD internship – 2027</a></td>
+  <td>ENERGY_STORAGE</td>
+  <td>Longmont</td>
+  <td>2.7</td>
+</tr>
+  <tr>
+  <td>Varda Space Industries</td>
+  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
+  <td>AEROSPACE</td>
+  <td>El Segundo, California, United States</td>
   <td>2.7</td>
 </tr>
   <tr>
@@ -155,11 +162,11 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>2.7</td>
 </tr>
   <tr>
-  <td>Varda Space Industries</td>
-  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
-  <td>AEROSPACE</td>
-  <td>El Segundo, California, United States</td>
-  <td>2.7</td>
+  <td>GE Vernova</td>
+  <td><a href="https://gevernova.wd5.myworkdayjobs.com/en-US/Vernova_ExternalSite/job/Cienega-de-Flores/Lean-Manufacturing-Intern_R5054298">Lean Manufacturing Intern</a></td>
+  <td>ENERGY_STORAGE</td>
+  <td>2 Locations</td>
+  <td>1.0</td>
 </tr>
 
   </tbody>
