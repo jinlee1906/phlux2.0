@@ -6,7 +6,7 @@ A personal job tracker for chemical engineering roles — process engineering, m
 ---
 
 ## 🔍 Top Postings
-*Showing the 18 highest-scoring of 18 active postings — full history in `data/postings.ndjson`*
+*Showing the 20 highest-scoring of 20 active postings — full history in `data/postings.ndjson`*
 
 
 <table>
@@ -41,6 +41,20 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>AEROSPACE</td>
   <td>El Segundo, California, United States</td>
   <td>3.0</td>
+</tr>
+  <tr>
+  <td>Amgen</td>
+  <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Grad-Intern---Operations---Process-Development--Summer-2027-_R-254519">Grad Intern - Operations – Process Development (Summer 2027)</a></td>
+  <td>PHARMA_BIOTECH</td>
+  <td>US - California - Thousand Oaks</td>
+  <td>2.6</td>
+</tr>
+  <tr>
+  <td>Amgen</td>
+  <td><a href="https://amgen.wd1.myworkdayjobs.com/en-US/Careers/job/US---California---Thousand-Oaks/Undergrad-Intern---Operations---Process-Development--Summer-2027-_R-254516">Undergrad Intern - Operations – Process Development (Summer 2027)</a></td>
+  <td>PHARMA_BIOTECH</td>
+  <td>US - California - Thousand Oaks</td>
+  <td>2.6</td>
 </tr>
   <tr>
   <td>Anduril</td>
@@ -85,13 +99,6 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td>2.6</td>
 </tr>
   <tr>
-  <td>Varda Space Industries</td>
-  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
-  <td>AEROSPACE</td>
-  <td>El Segundo, California, United States</td>
-  <td>2.6</td>
-</tr>
-  <tr>
   <td>Merck</td>
   <td><a href="https://msd.wd5.myworkdayjobs.com/en-US/SearchJobs/job/USA---Delaware---Millsboro-Intervet/XMLNAME-2027-Future-Talent-Program----Bioprocess-Technology-Solutions--BTS----Intern_R412781">2027 Future Talent Program -  Bioprocess Technology Solutions (BTS) - Intern</a></td>
   <td>PHARMA_BIOTECH</td>
@@ -131,6 +138,13 @@ A personal job tracker for chemical engineering roles — process engineering, m
   <td><a href="https://msd.wd5.myworkdayjobs.com/en-US/SearchJobs/job/USA---Pennsylvania---West-Point/XMLNAME-2027-Future-Talent-Program---Bioprocess-Clinical-Manufacturing---Technology-Co-Op_R413123">2027 Future Talent Program - Bioprocess Clinical Manufacturing & Technology Co-Op</a></td>
   <td>PHARMA_BIOTECH</td>
   <td>USA - Pennsylvania - West Point</td>
+  <td>2.6</td>
+</tr>
+  <tr>
+  <td>Varda Space Industries</td>
+  <td><a href="https://job-boards.greenhouse.io/vardaspace/jobs/7824834003">Biologics Formulation Research Internship - Spring 2027</a></td>
+  <td>AEROSPACE</td>
+  <td>El Segundo, California, United States</td>
   <td>2.6</td>
 </tr>
   <tr>
