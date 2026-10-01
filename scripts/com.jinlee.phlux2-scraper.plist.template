@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Template for a launchd job that runs scripts/run_scheduled.sh at 9:00 AM
+  Monday-Friday, in your Mac's local timezone (launchd uses system local
+  time for StartCalendarInterval, so this already accounts for Eastern/EDT
+  vs EST without any extra conversion).
+
+  Setup (see the chat for the full walkthrough):
+    1. Replace REPLACE_WITH_CLONE_PATH below with the absolute path to a
+       DEDICATED clone of this repo (not your interactive working copy) --
+       e.g. /Users/jl/phlux2.0-scheduled
+    2. Copy this file to ~/Library/LaunchAgents/com.jinlee.phlux2-scraper.plist
+    3. launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.jinlee.phlux2-scraper.plist
+    4. launchctl enable gui/$(id -u)/com.jinlee.phlux2-scraper
+
+  To test immediately without waiting for 9am:
+    launchctl kickstart gui/$(id -u)/com.jinlee.phlux2-scraper
+
+  To check logs: tail -f REPLACE_WITH_CLONE_PATH/scripts/run_scheduled.log
+
+  To remove: launchctl bootout gui/$(id -u)/com.jinlee.phlux2-scraper
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.jinlee.phlux2-scraper</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>REPLACE_WITH_CLONE_PATH/scripts/run_scheduled.sh</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Weekday</key>
+            <integer>1</integer>
+            <key>Hour</key>
+            <integer>9</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Weekday</key>
+            <integer>2</integer>
+            <key>Hour</key>
+            <integer>9</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Weekday</key>
+            <integer>3</integer>
+            <key>Hour</key>
+            <integer>9</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Weekday</key>
+            <integer>4</integer>
+            <key>Hour</key>
+            <integer>9</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Weekday</key>
+            <integer>5</integer>
+            <key>Hour</key>
+            <integer>9</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>REPLACE_WITH_CLONE_PATH/scripts/run_scheduled.log</string>
+    <key>StandardErrorPath</key>
+    <string>REPLACE_WITH_CLONE_PATH/scripts/run_scheduled.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
