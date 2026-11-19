@@ -207,6 +207,41 @@ class TestSendDigest:
         possible = {t.format(n=1, s="") for t in _SUBJECT_TEMPLATES}
         assert all(msg["Subject"] in possible for msg in sent_msgs)
 
+    def test_retries_network_errors_then_succeeds(self):
+        import smtplib
+        smtp_cls, smtp_instance = _make_smtp_mock()
+        smtp_instance.login.side_effect = [smtplib.SMTPServerDisconnected("closed"), None]
+        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
+             patch("main.time.sleep") as sleep, \
+             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
+            send_digest([_make_posting()])
+        assert smtp_instance.login.call_count == 2
+        smtp_instance.send_message.assert_called_once()
+        sleep.assert_called_once()
+
+    def test_gives_up_after_max_attempts(self):
+        import socket
+        from main import _SMTP_ATTEMPTS
+        smtp_cls = MagicMock(side_effect=socket.gaierror(8, "nodename nor servname"))
+        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
+             patch("main.time.sleep"), \
+             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
+            with pytest.raises(socket.gaierror):
+                send_digest([_make_posting()])
+        assert smtp_cls.call_count == _SMTP_ATTEMPTS
+
+    def test_does_not_retry_auth_rejection(self):
+        import smtplib
+        smtp_cls, smtp_instance = _make_smtp_mock()
+        smtp_instance.login.side_effect = smtplib.SMTPAuthenticationError(535, b"bad creds")
+        with patch("main.smtplib.SMTP_SSL", smtp_cls), \
+             patch("main.time.sleep") as sleep, \
+             patch.dict(os.environ, {"GMAIL_APP_PASSWORD": "secret"}):
+            with pytest.raises(smtplib.SMTPAuthenticationError):
+                send_digest([_make_posting()])
+        assert smtp_instance.login.call_count == 1
+        sleep.assert_not_called()
+
     def test_sends_even_with_zero_postings(self):
         smtp_cls, smtp_instance = _make_smtp_mock()
         with patch("main.smtplib.SMTP_SSL", smtp_cls), \

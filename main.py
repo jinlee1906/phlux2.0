@@ -11,6 +11,7 @@ import logging
 import os
 import random
 import smtplib
+import time
 from email.message import EmailMessage
 from typing import Dict, List
 
@@ -220,9 +221,37 @@ def send_digest(postings: List[Posting]) -> None:
     )
 
     password = os.environ["GMAIL_APP_PASSWORD"]
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(email_cfg["login"], password)
-        smtp.send_message(msg)
+    _send_with_retry(msg, email_cfg["login"], password)
+
+
+# Network hiccups (DNS not up yet after wake, hotspot drops, Gmail closing
+# the connection) are retried with backoff; an explicit auth rejection is not,
+# since retrying a wrong password can't help.
+_SMTP_ATTEMPTS = 4
+_SMTP_BACKOFF_SECONDS = (30, 60, 120)
+
+
+def _send_with_retry(msg: EmailMessage, login: str, password: str) -> None:
+    for attempt in range(1, _SMTP_ATTEMPTS + 1):
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=60) as smtp:
+                smtp.login(login, password)
+                smtp.send_message(msg)
+            return
+        except smtplib.SMTPAuthenticationError:
+            logger.error("Gmail rejected the login — GMAIL_APP_PASSWORD is likely revoked or wrong.")
+            raise
+        except OSError as exc:  # includes socket.gaierror and all other SMTPExceptions
+            if attempt == _SMTP_ATTEMPTS:
+                if isinstance(exc, smtplib.SMTPServerDisconnected):
+                    logger.error(
+                        "Gmail kept closing the connection at login. If the network is fine, "
+                        "the app password has most likely been revoked — make a new one."
+                    )
+                raise
+            delay = _SMTP_BACKOFF_SECONDS[attempt - 1]
+            logger.warning("Email send attempt %d failed (%r); retrying in %ds", attempt, exc, delay)
+            time.sleep(delay)
 
 
 def main(dry_run: bool = False) -> None:

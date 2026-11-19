@@ -26,8 +26,46 @@ LOG_FILE="$REPO_DIR/scripts/run_scheduled.log"
 exec >> "$LOG_FILE" 2>&1
 echo "=== $(date -u +"%Y-%m-%dT%H:%M:%SZ") starting scheduled run ==="
 
+# At 9am the Mac is often in a brief battery "DarkWake", or just woke and
+# hasn't rejoined Wi-Fi/hotspot yet -- runs were dying on DNS failures and
+# the Mac was dropping back to sleep mid-scrape. So: hold off idle sleep for
+# as long as this script runs, then wait for the network before starting.
+/usr/bin/caffeinate -i -w $$ &
+
+NETWORK_WAIT_SECONDS=1200  # 20 min
+wait_for_network() {
+    local waited=0
+    until /usr/bin/curl -sS -o /dev/null --max-time 10 https://github.com \
+        && /usr/bin/curl -sS -o /dev/null --max-time 10 https://www.google.com; do
+        if (( waited >= NETWORK_WAIT_SECONDS )); then
+            echo "Network still unreachable after ${NETWORK_WAIT_SECONDS}s, giving up"
+            return 1
+        fi
+        echo "Network not ready, waiting 30s (waited ${waited}s so far)"
+        sleep 30
+        waited=$((waited + 30))
+    done
+}
+
+# retry <attempts> <cmd...>: re-run a command with 30s/60s/... backoff.
+retry() {
+    local attempts=$1; shift
+    local n=1
+    until "$@"; do
+        if (( n >= attempts )); then
+            echo "Failed after $attempts attempts: $*"
+            return 1
+        fi
+        echo "Attempt $n failed: $* -- retrying in $((n * 30))s"
+        sleep $((n * 30))
+        n=$((n + 1))
+    done
+}
+
+wait_for_network
+
 git checkout main
-git fetch origin main
+retry 4 git fetch origin main
 git reset --hard origin/main
 
 .venv/bin/python main.py
@@ -37,7 +75,7 @@ git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
 for attempt in 1 2 3; do
-    git fetch origin main
+    retry 4 git fetch origin main
     git reset --soft origin/main
     git add storage.json README.md data/
     if git diff --cached --quiet; then
